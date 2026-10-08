@@ -2323,3 +2323,123 @@ small {
   flex: 0 0 auto;
   padding: 0;
 }
+
+/* Customer experience: response target, rating, help suggestions */
+.response-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #287f59;
+  background: #e8f5ee;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.response-target.late {
+  color: #b64542;
+  background: #fdeeed;
+}
+.rating-prompt {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  border: 1px solid #e3def5;
+  border-radius: 10px;
+  background: #faf9fe;
+}
+.rating-prompt b {
+  display: block;
+  font-size: 14px;
+}
+.rating-prompt small {
+  display: block;
+  color: #6f7488;
+  margin-top: 3px;
+  font-size: 12px;
+}
+.rating-prompt textarea {
+  font-size: 13px;
+}
+.rating-prompt .button {
+  justify-self: start;
+  font-size: 13px;
+}
+.stars {
+  display: inline-flex;
+  gap: 2px;
+}
+.stars button,
+.stars i {
+  display: inline-flex;
+  padding: 2px;
+  color: #cfd3e0;
+  border-radius: 6px;
+}
+.stars button.on,
+.stars i.on {
+  color: #e9a822;
+}
+.stars button.on svg,
+.stars i.on svg {
+  fill: currentColor;
+}
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 14px;
+  font-size: 13px;
+}
+.rating-summary small {
+  display: block;
+  color: #6f7488;
+  margin-top: 2px;
+}
+.help-suggestions {
+  margin: 10px 0 2px;
+  border: 1px solid #d9efee;
+  background: #f2fbfa;
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+.help-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0b7f7a;
+  margin-bottom: 4px;
+}
+.help-suggestions details {
+  border-top: 1px solid #d9efee;
+}
+.help-suggestions summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 650;
+  list-style: none;
+}
+.help-suggestions summary::-webkit-details-marker {
+  display: none;
+}
+.help-suggestions details[open] summary svg {
+  transform: rotate(180deg);
+}
+.help-suggestions ul {
+  margin: 0 0 10px;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #454e65;
+}
+.help-suggestions li + li {
+  margin-top: 4px;
+}

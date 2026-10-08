@@ -14,12 +14,21 @@ import {
   ChevronDown,
   Bot,
   Sparkles,
+  Star,
+  Timer,
 } from "lucide-react";
 import { api, post } from "./api";
 import { Empty, Loading, Status } from "./components";
 import { ReminderForm } from "./TicketForms";
 import { MessageComposer, MessageContent } from "./MessageEditor";
-import { CATEGORIES, PRIORITIES, STATUSES, date, initials } from "./types";
+import {
+  CATEGORIES,
+  PRIORITIES,
+  RATING_LABELS,
+  STATUSES,
+  date,
+  initials,
+} from "./types";
 import type { Staff, Tenant, Ticket, TicketList, User } from "./types";
 
 type Props = {
@@ -453,6 +462,132 @@ export default function Tickets({
   );
 }
 
+function ResponseTarget({ ticket }: { ticket: Ticket }) {
+  const target = ticket.response_target;
+  if (!target) return null;
+  const active = !["resolved", "closed"].includes(ticket.status);
+  if (target.first_response_at)
+    return (
+      <p className={`response-target ${target.met ? "met" : "late"}`}>
+        <Timer size={13} />
+        İlk yanıt {date(target.first_response_at)}
+        {target.met ? " · hedef içinde" : " · hedef aşıldı"}
+      </p>
+    );
+  if (!active) return null;
+  const overdue = new Date(target.due_at) < new Date();
+  return (
+    <p className={`response-target ${overdue ? "late" : ""}`}>
+      <Timer size={13} />
+      {overdue
+        ? `Yanıt hedefi ${date(target.due_at)} idi; ekibimiz en kısa sürede dönecek.`
+        : `En geç ${date(target.due_at)} tarihine kadar yanıt vereceğiz (${target.hours} saat).`}
+    </p>
+  );
+}
+
+function Stars({
+  value,
+  onPick,
+  hover,
+  onHover,
+}: {
+  value: number;
+  onPick?: (n: number) => void;
+  hover?: number;
+  onHover?: (n: number) => void;
+}) {
+  const shown = hover || value;
+  return (
+    <span className="stars" role={onPick ? "radiogroup" : undefined}>
+      {[1, 2, 3, 4, 5].map((n) =>
+        onPick ? (
+          <button
+            type="button"
+            key={n}
+            role="radio"
+            aria-checked={value === n}
+            aria-label={`${n} yıldız · ${RATING_LABELS[n]}`}
+            className={n <= shown ? "on" : ""}
+            onClick={() => onPick(n)}
+            onMouseEnter={() => onHover?.(n)}
+            onMouseLeave={() => onHover?.(0)}
+          >
+            <Star size={20} />
+          </button>
+        ) : (
+          <i key={n} className={n <= shown ? "on" : ""}>
+            <Star size={15} />
+          </i>
+        ),
+      )}
+    </span>
+  );
+}
+
+function RatingPrompt({
+  ticket,
+  onUpdate,
+  notify,
+}: {
+  ticket: Ticket;
+  onUpdate: (t: Ticket) => void;
+  notify: (text: string) => void;
+}) {
+  const [score, setScore] = useState(0),
+    [hover, setHover] = useState(0),
+    [comment, setComment] = useState(""),
+    [busy, setBusy] = useState(false);
+  return (
+    <form
+      className="rating-prompt"
+      aria-label="Memnuniyet değerlendirmesi"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!score) return;
+        setBusy(true);
+        try {
+          const updated = await api<Ticket>(`/tickets/${ticket.id}/rating`, {
+            method: "POST",
+            body: JSON.stringify({ score, comment }),
+          });
+          onUpdate(updated);
+          notify("Teşekkürler, değerlendirmeniz kaydedildi.");
+        } catch (err) {
+          notify((err as Error).message);
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <div>
+        <b>Destek deneyiminizi nasıl buldunuz?</b>
+        <small>
+          {score
+            ? `${score}/5 · ${RATING_LABELS[score]}`
+            : "Bir yıldız seçin; yorum eklemek isteğe bağlı."}
+        </small>
+      </div>
+      <Stars value={score} onPick={setScore} hover={hover} onHover={setHover} />
+      {score > 0 && (
+        <>
+          <textarea
+            aria-label="Yorumunuz"
+            placeholder="Kısa bir yorum bırakabilirsiniz (isteğe bağlı)"
+            maxLength={500}
+            rows={2}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <button className="button primary" disabled={busy}>
+            {busy ? "Gönderiliyor…" : "Değerlendirmeyi gönder"}
+          </button>
+        </>
+      )}
+    </form>
+  );
+}
+
 function ShieldNote() {
   return (
     <>
@@ -576,6 +711,7 @@ function Thread({
             <span>·</span>
             {date(ticket.created_at)}
           </p>
+          <ResponseTarget ticket={ticket} />
         </div>
         <button
           className="icon-btn detail-close"
@@ -749,6 +885,22 @@ function Thread({
         </div>
       </div>
       <div className="composer">
+        {ticket.can_rate && (
+          <RatingPrompt ticket={ticket} onUpdate={onUpdate} notify={notify} />
+        )}
+        {ticket.rating !== null && (
+          <div className="rating-summary">
+            <Stars value={ticket.rating} />
+            <span>
+              <b>
+                {ticket.rating}/5 · {RATING_LABELS[ticket.rating]}
+              </b>
+              {ticket.rating_comment && (
+                <small>“{ticket.rating_comment}”</small>
+              )}
+            </span>
+          </div>
+        )}
         {ticket.status === "closed" ? (
           <div className="closed-banner">
             <span>
@@ -803,6 +955,7 @@ function Thread({
                   internal={isInternal}
                   busy={busy}
                   draft={isInternal ? null : draft}
+                  storageKey={`taslak:${ticket.id}:${isInternal ? "ic-not" : "mesaj"}`}
                   onSend={async (payload) => {
                     setBusy(true);
                     payload.set("version", String(ticket.version));

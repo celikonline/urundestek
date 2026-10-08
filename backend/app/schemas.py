@@ -76,6 +76,11 @@ class StaffUpdate(Input):
     role: Literal["support_agent", "platform_admin"] | None = None
 
 
+class RatingInput(Input):
+    score: int = Field(ge=1, le=5)
+    comment: str = Field(default="", max_length=500)
+
+
 class PreferencesInput(Input):
     email_notifications: bool
 

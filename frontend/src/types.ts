@@ -29,6 +29,16 @@ export type Ticket = {
   created_at: string;
   updated_at: string;
   unread: number;
+  response_target: {
+    hours: number;
+    due_at: string;
+    first_response_at: string | null;
+    met: boolean | null;
+  };
+  rating: number | null;
+  rating_comment: string | null;
+  rated_at: string | null;
+  can_rate: boolean;
   messages?: Message[];
   events?: { id: string; label: string; created_at: string }[];
 };
@@ -170,6 +180,14 @@ export const PRIORITIES: Record<string, string> = {
   normal: "Normal",
   high: "Yüksek",
   urgent: "Acil",
+};
+export type HelpArticle = { title: string; lines: string[] };
+export const RATING_LABELS: Record<number, string> = {
+  1: "Çok kötü",
+  2: "Kötü",
+  3: "Orta",
+  4: "İyi",
+  5: "Çok iyi",
 };
 export const AI_MODES: Record<string, string> = {
   inherit: "Varsayılanı kullan",

@@ -1,10 +1,67 @@
-import { useRef, useState } from "react";
-import { BellPlus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { BellPlus, BookOpen, ChevronDown } from "lucide-react";
 import { api, post } from "./api";
 import { Field, Modal } from "./components";
 import { CATEGORIES, PRIORITIES } from "./types";
-import { MessageComposer } from "./MessageEditor";
-import type { Ticket } from "./types";
+import { MessageComposer, readDraft, writeDraft } from "./MessageEditor";
+import type { HelpArticle, Ticket } from "./types";
+
+const DRAFT_KEY = "taslak:yeni-talep";
+
+function HelpSuggestions({ query }: { query: string }) {
+  const [items, setItems] = useState<HelpArticle[]>([]),
+    [open, setOpen] = useState<string | null>(null);
+  useEffect(() => {
+    if (query.trim().length < 3) {
+      setItems([]);
+      return;
+    }
+    let alive = true;
+    const timer = setTimeout(() => {
+      api<{ items: HelpArticle[] }>(`/help?q=${encodeURIComponent(query)}`)
+        .then((r) => {
+          if (alive) setItems(r.items);
+        })
+        .catch(() => {
+          if (alive) setItems([]);
+        });
+    }, 300);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [query]);
+  if (!items.length) return null;
+  return (
+    <div className="help-suggestions" aria-label="Yardımcı olabilecek bilgiler">
+      <span className="help-title">
+        <BookOpen size={14} />
+        Talep açmadan önce bunlar yardımcı olabilir
+      </span>
+      {items.map((item) => (
+        <details
+          key={item.title}
+          open={open === item.title}
+          onToggle={(e) =>
+            setOpen(
+              (e.currentTarget as HTMLDetailsElement).open ? item.title : null,
+            )
+          }
+        >
+          <summary>
+            {item.title}
+            <ChevronDown size={14} />
+          </summary>
+          <ul>
+            {item.lines.map((line, index) => (
+              <li key={index}>{line}</li>
+            ))}
+          </ul>
+        </details>
+      ))}
+    </div>
+  );
+}
 
 export function NewTicket({
   onClose,
@@ -15,7 +72,31 @@ export function NewTicket({
 }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const saved = useRef(readDraft(DRAFT_KEY));
+  const draft = (() => {
+    try {
+      return JSON.parse(saved.current || "{}") as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  })();
+  const [subject, setSubject] = useState(draft.subject || "");
   const key = useRef(crypto.randomUUID());
+  const remember = (form: HTMLFormElement | null) => {
+    if (!form) return;
+    const data = Object.fromEntries(new FormData(form)) as Record<
+      string,
+      string
+    >;
+    writeDraft(
+      DRAFT_KEY,
+      JSON.stringify({
+        subject: data.subject || "",
+        category: data.category || "",
+        priority: data.priority || "",
+      }),
+    );
+  };
   return (
     <Modal
       title="Yeni destek talebi"
@@ -33,8 +114,12 @@ export function NewTicket({
         submitLabel="Talebi oluştur"
         minimumTextLength={10}
         onCancel={onClose}
+        storageKey={`${DRAFT_KEY}:aciklama`}
         beforeEditor={
-          <div className="new-ticket-fields">
+          <div
+            className="new-ticket-fields"
+            onChange={(e) => remember(e.currentTarget.closest("form"))}
+          >
             <Field label="Konu">
               <input
                 name="subject"
@@ -44,11 +129,18 @@ export function NewTicket({
                 placeholder="Size hangi konuda yardımcı olabiliriz?"
                 autoFocus
                 disabled={busy}
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
               />
             </Field>
+            <HelpSuggestions query={subject} />
             <div className="form-grid">
               <Field label="Kategori">
-                <select name="category" disabled={busy}>
+                <select
+                  name="category"
+                  disabled={busy}
+                  defaultValue={draft.category || "general"}
+                >
                   {Object.entries(CATEGORIES).map(([v, l]) => (
                     <option key={v} value={v}>
                       {l}
@@ -57,7 +149,11 @@ export function NewTicket({
                 </select>
               </Field>
               <Field label="Öncelik">
-                <select name="priority" disabled={busy}>
+                <select
+                  name="priority"
+                  disabled={busy}
+                  defaultValue={draft.priority || "normal"}
+                >
                   {Object.entries(PRIORITIES).map(([v, l]) => (
                     <option key={v} value={v}>
                       {l}
@@ -80,6 +176,8 @@ export function NewTicket({
               headers: { "Idempotency-Key": key.current },
               body: payload,
             });
+            writeDraft(DRAFT_KEY, "");
+            writeDraft(`${DRAFT_KEY}:aciklama`, "");
             onCreated(t);
             return true;
           } catch (err) {

@@ -1,8 +1,18 @@
 from fastapi import HTTPException
 from sqlalchemy import or_, select, func
 from .auth import STAFF_ROLES
-from .models import Attachment, Message, Notification, Reminder, Tenant, Ticket, TicketEvent, User, iso
+from datetime import timedelta
+from .config import settings
+from .models import Attachment, Message, Notification, Reminder, Tenant, Ticket, TicketEvent, User, iso, utc
 from .attachments import attachment_view
+
+
+def response_target(ticket):
+    """Promise shown to the customer: when the first human or assistant reply is due, and whether it was kept."""
+    hours = settings.response_target_hours.get(ticket.priority, settings.response_target_hours["normal"])
+    due = utc(ticket.created_at) + timedelta(hours=hours)
+    return {"hours": hours, "due_at": iso(due), "first_response_at": iso(ticket.first_response_at),
+            "met": (utc(ticket.first_response_at) <= due) if ticket.first_response_at else None}
 
 
 def ticket_scope(user):
@@ -29,7 +39,9 @@ def ticket_view(db, ticket, user, detail=False):
     result = {"id": ticket.id, "number": ticket.number, "tenant_id": ticket.tenant_id, "tenant_name": tenant.name, "tenant_slug": tenant.slug,
               "subject": ticket.subject, "category": ticket.category, "priority": ticket.priority, "status": ticket.status,
               "created_by": ticket.created_by, "requester_name": creator.name, "assigned_to": ticket.assigned_to,
-              "assignee_name": assignee.name if assignee else None, "version": ticket.version, "created_at": iso(ticket.created_at), "updated_at": iso(ticket.updated_at), "unread": unread}
+              "assignee_name": assignee.name if assignee else None, "version": ticket.version, "created_at": iso(ticket.created_at), "updated_at": iso(ticket.updated_at), "unread": unread,
+              "response_target": response_target(ticket), "rating": ticket.rating, "rating_comment": ticket.rating_comment, "rated_at": iso(ticket.rated_at),
+              "can_rate": user.role not in STAFF_ROLES and ticket.status in {"resolved", "closed"} and ticket.rating is None}
     if detail:
         messages = select(Message).where(Message.ticket_id == ticket.id, Message.tenant_id == ticket.tenant_id).order_by(Message.created_at, Message.id)
         events = select(TicketEvent).where(TicketEvent.ticket_id == ticket.id).order_by(TicketEvent.created_at)

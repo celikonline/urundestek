@@ -17,8 +17,9 @@ from .db import get_db
 from .integration import launch_from_senseik
 from .models import Attachment, AuditLog, AuthSession, Message, Notification, OutboundEmail, Reminder, Tenant, Ticket, User, iso, now, utc
 from .repository import get_reminder, get_ticket, list_tickets, reminder_view, ticket_scope, ticket_view
-from .schemas import AdminTicketInput, CreateTicket, DemoInput, ExchangeInput, LoginInput, MessageInput, PasswordChangeInput, PreferencesInput, ReminderInput, StaffInput, StaffUpdate, TenantInput, VersionInput
-from .services import add_message, admin_update, change_status, create_ticket, follow_up
+from .help import search as help_search
+from .schemas import AdminTicketInput, CreateTicket, DemoInput, ExchangeInput, LoginInput, MessageInput, PasswordChangeInput, PreferencesInput, RatingInput, ReminderInput, StaffInput, StaffUpdate, TenantInput, VersionInput
+from .services import add_message, admin_update, change_status, create_ticket, follow_up, rate_ticket
 
 router = APIRouter(prefix="/api/v1")
 
@@ -187,6 +188,16 @@ def close(ticket_id: str, data: VersionInput, user=Depends(current_user), db=Dep
 @router.post("/tickets/{ticket_id}/reopen")
 def reopen(ticket_id: str, data: VersionInput, user=Depends(current_user), db=Depends(get_db)):
     return change_status(db, user, ticket_id, data.version, "open")
+
+
+@router.post("/tickets/{ticket_id}/rating")
+def rating(ticket_id: str, data: RatingInput, user=Depends(current_user), db=Depends(get_db)):
+    return rate_ticket(db, user, ticket_id, data)
+
+
+@router.get("/help")
+def help_articles(q: str = Query("", max_length=200), user=Depends(current_user)):
+    return {"items": help_search(q) if len(q.strip()) >= 3 else []}
 
 
 @router.post("/tickets/{ticket_id}/follow-up")

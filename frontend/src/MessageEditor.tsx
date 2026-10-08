@@ -41,6 +41,23 @@ function FilePreview({ file }: { file: File }) {
   return url ? <img src={url} alt="" /> : <FileText size={24} />;
 }
 
+export function readDraft(key: string) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? DOMPurify.sanitize(value) : "";
+  } catch {
+    return "";
+  }
+}
+export function writeDraft(key: string, value: string) {
+  try {
+    if (value) localStorage.setItem(key, value);
+    else localStorage.removeItem(key);
+  } catch {
+    /* storage unavailable: drafts simply are not kept */
+  }
+}
+
 export function MessageComposer({
   internal,
   busy,
@@ -50,6 +67,7 @@ export function MessageComposer({
   editorLabel,
   submitLabel,
   minimumTextLength = 2,
+  storageKey,
   onCancel,
 }: {
   internal: boolean;
@@ -60,6 +78,7 @@ export function MessageComposer({
   editorLabel?: string;
   submitLabel?: string;
   minimumTextLength?: number;
+  storageKey?: string;
   onCancel?: () => void;
 }) {
   const [files, setFiles] = useState<File[]>([]);
@@ -109,6 +128,12 @@ export function MessageComposer({
         link: { openOnClick: false, autolink: false },
       }),
     ],
+    // Drafts live in this browser only, so a timed-out session never eats a half-written message.
+    content: storageKey ? readDraft(storageKey) : undefined,
+    onUpdate: ({ editor: current }) => {
+      if (!storageKey) return;
+      writeDraft(storageKey, current.isEmpty ? "" : current.getHTML());
+    },
     editorProps: {
       attributes: {
         role: "textbox",
