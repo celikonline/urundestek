@@ -41,7 +41,8 @@ def ticket_view(db, ticket, user, detail=False):
         if message_rows:
             for item in db.scalars(select(Attachment).where(Attachment.message_id.in_([m.id for m in message_rows]), Attachment.tenant_id == ticket.tenant_id).order_by(Attachment.id)):
                 attachments.setdefault(item.message_id, []).append(attachment_view(item))
-        result["messages"] = [{"id": m.id, "body": m.body, "body_html": m.body_html, "attachments": attachments.get(m.id, []), "kind": m.kind, "author_id": m.author_id, "author_name": db.get(User, m.author_id).name, "created_at": iso(m.created_at)} for m in message_rows]
+        authors = {m.author_id: db.get(User, m.author_id) for m in message_rows}
+        result["messages"] = [{"id": m.id, "body": m.body, "body_html": m.body_html, "attachments": attachments.get(m.id, []), "kind": m.kind, "author_id": m.author_id, "author_name": authors[m.author_id].name, "author_role": authors[m.author_id].role, "created_at": iso(m.created_at)} for m in message_rows]
         result["events"] = [{"id": e.id, "label": e.label, "created_at": iso(e.created_at)} for e in db.scalars(events)]
     return result
 

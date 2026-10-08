@@ -10,6 +10,7 @@ import {
   Check,
   ChevronRight,
   CircleHelp,
+  ShieldCheck,
 } from "lucide-react";
 import { api, post, setCsrf } from "./api";
 import { Brand, Loading } from "./components";
@@ -17,10 +18,11 @@ import Login from "./Login";
 import Tickets from "./Tickets";
 import { NewTicket } from "./TicketForms";
 import { Management, Notifications, Reminders } from "./Panels";
+import { Security } from "./Security";
 import { initials } from "./types";
 import type { Notice, Ticket, User } from "./types";
 
-type Page = "tickets" | "reminders" | "tenants" | "staff";
+type Page = "tickets" | "reminders" | "tenants" | "staff" | "security";
 export default function App() {
   const [user, setUser] = useState<User | null>(null),
     [boot, setBoot] = useState(true),
@@ -40,13 +42,16 @@ export default function App() {
   const enter = useCallback((u: User) => {
     setCsrf(u.csrf_token);
     setUser(u);
-    setSelected(null);
+    // A ticket link from an e-mail survives the login round-trip.
+    const pending = new URLSearchParams(location.search).get("talep");
+    setSelected(pending);
     setNotices([]);
     setPage("tickets");
     history.replaceState(
       null,
       "",
-      u.is_staff ? "/admin" : `/firma/${u.tenant?.slug}/talepler`,
+      (u.is_staff ? "/admin" : `/firma/${u.tenant?.slug}/talepler`) +
+        (pending ? `?talep=${pending}` : ""),
     );
   }, []);
   useEffect(() => {
@@ -155,6 +160,7 @@ export default function App() {
     reminders: "Hatırlatmalarım",
     tenants: "Firmalar",
     staff: "Destek ekibi",
+    security: "Güvenlik",
   };
   const unread = notices.filter((n) => !n.read).length;
   return (
@@ -195,6 +201,13 @@ export default function App() {
               >
                 <Users size={18} />
                 Destek ekibi
+              </button>
+              <button
+                className={page === "security" ? "selected" : ""}
+                onClick={() => navigate("security")}
+              >
+                <ShieldCheck size={18} />
+                Güvenlik
               </button>
             </>
           )}
@@ -295,6 +308,14 @@ export default function App() {
               notify={notify}
               openTicket={openTicket}
             />
+          ) : page === "security" ? (
+            <Security
+              user={user}
+              revision={revision}
+              refresh={refresh}
+              notify={notify}
+              openTicket={openTicket}
+            />
           ) : (
             <Management
               kind={page}
@@ -329,6 +350,8 @@ export default function App() {
       {showNotices && (
         <Notifications
           notices={notices}
+          user={user}
+          onUser={setUser}
           onClose={() => setShowNotices(false)}
           openTicket={openTicket}
           refresh={refresh}

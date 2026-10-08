@@ -7,10 +7,13 @@ import {
   Users,
   ArrowUpRight,
   X,
+  Mail,
+  Bot,
+  LockKeyhole,
 } from "lucide-react";
 import { api, post } from "./api";
 import { Empty, Field, Loading, Modal } from "./components";
-import { date, initials } from "./types";
+import { AI_MODES, date, initials } from "./types";
 import type { Notice, Reminder, Staff, Tenant, User } from "./types";
 
 type Props = {
@@ -172,19 +175,62 @@ export function Reminders({ revision, refresh, notify, openTicket }: Props) {
 
 export function Notifications({
   notices,
+  user,
+  onUser,
   onClose,
   openTicket,
   refresh,
   notify,
 }: {
   notices: Notice[];
+  user: User;
+  onUser: (u: User) => void;
   onClose: () => void;
   openTicket: (id: string) => void;
   refresh: () => void;
   notify: (text: string) => void;
 }) {
+  const [saving, setSaving] = useState(false);
   return (
     <Modal title="Bildirimler" onClose={onClose}>
+      <label className="pref-toggle">
+        <input
+          type="checkbox"
+          checked={user.email_notifications}
+          disabled={saving || !user.mail_enabled}
+          onChange={async (e) => {
+            setSaving(true);
+            try {
+              const updated = await api<User>("/me/preferences", {
+                method: "PATCH",
+                body: JSON.stringify({ email_notifications: e.target.checked }),
+              });
+              onUser({
+                ...user,
+                email_notifications: updated.email_notifications,
+              });
+              notify(
+                updated.email_notifications
+                  ? "E-posta bildirimleri açıldı."
+                  : "E-posta bildirimleri kapatıldı.",
+              );
+            } catch (err) {
+              notify((err as Error).message);
+            } finally {
+              setSaving(false);
+            }
+          }}
+        />
+        <span>
+          <Mail size={15} />
+          <b>E-posta ile de bilgilendir</b>
+          <small>
+            {user.mail_enabled
+              ? "Yanıt, durum değişikliği ve hatırlatmalar için kısa bir e-posta gelir; mesaj içeriği e-postada yer almaz."
+              : "E-posta gönderimi bu kurulumda yapılandırılmamış."}
+          </small>
+        </span>
+      </label>
       <div className="notifications">
         {!notices.length ? (
           <Empty
@@ -208,7 +254,7 @@ export function Notifications({
               }}
             >
               <span className="notice-icon">
-                <Bell size={16} />
+                {n.kind === "ai" ? <Bot size={16} /> : <Bell size={16} />}
               </span>
               <span>
                 <b>{n.text}</b>
@@ -263,13 +309,15 @@ export function Management({
       alive = false;
     };
   }, [kind, revision]);
-  const edit = async (id: string, values: object) => {
+  const edit = async (
+    id: string,
+    values: object,
+    path = `/admin/${kind}/${id}`,
+    method = "PATCH",
+  ) => {
     setBusy(id);
     try {
-      await api(`/admin/${kind}/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(values),
-      });
+      await api(path, { method, body: JSON.stringify(values) });
       refresh();
       notify("Değişiklik kaydedildi.");
     } catch (e) {
@@ -286,7 +334,7 @@ export function Management({
           <h1>{kind === "tenants" ? "Firmalar" : "Destek ekibi"}</h1>
           <p>
             {kind === "tenants"
-              ? "Firmaların destek erişimini ve açık taleplerini görüntüleyin."
+              ? "Firmaların destek erişimini, asistan modunu ve açık taleplerini görüntüleyin."
               : "Destek görevlilerini ve yönetim yetkilerini düzenleyin."}
           </p>
         </div>
@@ -334,6 +382,41 @@ export function Management({
                     <span className="open-count">
                       {t.open_count} açık talep
                     </span>
+                    {user.role === "platform_admin" ? (
+                      <label className="ai-mode">
+                        <Bot size={14} />
+                        <select
+                          aria-label={`${t.name} asistan modu`}
+                          value={t.ai_mode}
+                          disabled={busy === t.id}
+                          onChange={(e) =>
+                            void edit(t.id, { ai_mode: e.target.value })
+                          }
+                        >
+                          {Object.entries(AI_MODES).map(([v, l]) => (
+                            <option key={v} value={v}>
+                              {l}
+                            </option>
+                          ))}
+                        </select>
+                        <small>
+                          {t.ai_effective === "off"
+                            ? "Asistan kapalı"
+                            : t.ai_effective === "auto"
+                              ? "Otomatik yanıt veriyor"
+                              : "Ekibe taslak hazırlıyor"}
+                        </small>
+                      </label>
+                    ) : (
+                      <span className="role-label">
+                        <Bot size={13} />{" "}
+                        {t.ai_effective === "off"
+                          ? "Asistan kapalı"
+                          : t.ai_effective === "auto"
+                            ? "Otomatik yanıt"
+                            : "Taslak modu"}
+                      </span>
+                    )}
                     <span
                       className={`status ${t.active ? "resolved" : "closed"}`}
                     >
@@ -388,6 +471,23 @@ export function Management({
                       <i />
                       {s.active ? "Aktif" : "Pasif"}
                     </span>
+                    {s.locked && user.role === "platform_admin" && (
+                      <button
+                        className="button secondary"
+                        disabled={busy === s.id}
+                        onClick={() =>
+                          void edit(
+                            s.id,
+                            {},
+                            `/admin/staff/${s.id}/unlock`,
+                            "POST",
+                          )
+                        }
+                      >
+                        <LockKeyhole size={14} />
+                        Kilidi kaldır
+                      </button>
+                    )}
                     {user.role === "platform_admin" && s.id !== user.id && (
                       <button
                         className="button secondary"
@@ -461,7 +561,9 @@ function StaffForm({
           />
         </Field>
         <small className="hint">
-          En az 12 karakter. Parolayı görevliye güvenli bir kanaldan iletin.
+          En az 12 karakter; ad veya e-posta içermemeli. Parolayı görevliye
+          güvenli bir kanaldan iletin; görevli ilk girişte Güvenlik sayfasından
+          değiştirebilir.
         </small>
         <Field label="Rol">
           <select name="role">
