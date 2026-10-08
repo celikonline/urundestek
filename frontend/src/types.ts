@@ -31,10 +31,18 @@ export type Ticket = {
 export type Message = {
   id: string;
   body: string;
+  body_html: string | null;
+  attachments: Attachment[];
   kind: string;
   author_id: string;
   author_name: string;
   created_at: string;
+};
+export type Attachment = {
+  id: string;
+  filename: string;
+  content_type: string;
+  size: number;
 };
 export type TicketList = {
   items: Ticket[];

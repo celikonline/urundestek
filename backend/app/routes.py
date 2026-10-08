@@ -1,11 +1,16 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, Response
+from fastapi.responses import FileResponse
+from pydantic import ValidationError
+from starlette.datastructures import UploadFile
+from starlette.concurrency import run_in_threadpool
+from .attachments import prepare_files
 from sqlalchemy import func, select, update
 from .auth import COOKIE, STAFF_ROLES, check_password, consume_launch_code, create_session, current_user, digest, hash_password, platform_user, staff_user, user_view
 from .config import settings
 from .db import get_db
 from .integration import launch_from_senseik
-from .models import AuthSession, Notification, Reminder, Tenant, Ticket, User, iso, now, utc
+from .models import Attachment, AuthSession, Message, Notification, Reminder, Tenant, Ticket, User, iso, now, utc
 from .repository import get_reminder, get_ticket, list_tickets, reminder_view, ticket_scope, ticket_view
 from .schemas import AdminTicketInput, CreateTicket, DemoInput, ExchangeInput, LoginInput, MessageInput, ReminderInput, StaffInput, StaffUpdate, TenantInput, VersionInput
 from .services import add_message, admin_update, change_status, create_ticket, follow_up
@@ -91,6 +96,49 @@ def message(ticket_id: str, data: MessageInput, user=Depends(current_user), db=D
 @router.post("/admin/tickets/{ticket_id}/notes")
 def note(ticket_id: str, data: MessageInput, user=Depends(staff_user), db=Depends(get_db)):
     return add_message(db, user, ticket_id, data, True)
+
+
+async def upload_message(request, db, user, ticket_id, internal=False):
+    ticket = get_ticket(db, user, ticket_id)
+    if ticket.status == "closed":
+        raise HTTPException(409, "Mesaj yazmak için önce talebi yeniden açın.")
+    async with request.form(max_files=5, max_fields=3, max_part_size=60000) as form:
+        try:
+            data = MessageInput(version=form.get("version"), body=form.get("body", ""), body_html=form.get("body_html"))
+        except ValidationError:
+            raise HTTPException(422, "Mesaj alanlarını kontrol edin.")
+        files = form.getlist("files")
+        if any(not isinstance(file, UploadFile) for file in files):
+            raise HTTPException(422, "Geçerli dosyalar seçin.")
+        prepared = await prepare_files(files)
+        return await run_in_threadpool(add_message, db, user, ticket_id, data, internal, prepared)
+
+
+@router.post("/tickets/{ticket_id}/messages/with-files")
+async def message_files(ticket_id: str, request: Request, user=Depends(current_user), db=Depends(get_db)):
+    return await upload_message(request, db, user, ticket_id)
+
+
+@router.post("/admin/tickets/{ticket_id}/notes/with-files")
+async def note_files(ticket_id: str, request: Request, user=Depends(staff_user), db=Depends(get_db)):
+    return await upload_message(request, db, user, ticket_id, True)
+
+
+@router.get("/attachments/{attachment_id}")
+def download_attachment(attachment_id: str, preview: bool = False, user=Depends(current_user), db=Depends(get_db)):
+    item = db.get(Attachment, attachment_id)
+    if not item:
+        raise HTTPException(404, "Dosya bulunamadı.")
+    get_ticket(db, user, item.ticket_id)
+    message = db.get(Message, item.message_id)
+    if not message or (message.kind == "internal" and user.role not in STAFF_ROLES):
+        raise HTTPException(404, "Dosya bulunamadı.")
+    path = settings.upload_dir / item.id
+    if not path.is_file():
+        raise HTTPException(404, "Dosya bulunamadı.")
+    inline = preview and item.content_type in {"image/png", "image/jpeg", "image/webp", "image/gif"}
+    return FileResponse(path, media_type=item.content_type, filename=item.filename, content_disposition_type="inline" if inline else "attachment",
+                        headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
 
 @router.patch("/admin/tickets/{ticket_id}")

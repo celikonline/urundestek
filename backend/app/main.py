@@ -13,6 +13,7 @@ from .db import SessionLocal
 from .routes import router
 from .seed import bootstrap_admin, seed_demo
 from .services import dispatch_reminders
+from .upload_limits import UploadLimitMiddleware
 
 logger = logging.getLogger("support")
 attempts = defaultdict(deque)
@@ -51,6 +52,7 @@ async def lifespan(app):
 def create_app():
     app = FastAPI(title="SenseİK Destek API", version="1.0.0", lifespan=lifespan, docs_url="/api/docs" if settings.app_env != "production" else None, openapi_url="/api/openapi.json" if settings.app_env != "production" else None, redoc_url=None)
     app.add_middleware(CORSMiddleware, allow_origins=list(settings.origins), allow_credentials=True, allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type", "X-CSRF-Token", "Idempotency-Key"])
+    app.add_middleware(UploadLimitMiddleware)
 
     @app.middleware("http")
     async def protect(request: Request, call_next):

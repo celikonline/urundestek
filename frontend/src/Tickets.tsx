@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Search,
   MessageSquare,
-  Send,
   BellPlus,
   Check,
   RotateCcw,
@@ -17,6 +16,7 @@ import {
 import { api, post } from "./api";
 import { Empty, Loading, Status } from "./components";
 import { ReminderForm } from "./TicketForms";
+import { MessageComposer, MessageContent } from "./MessageEditor";
 import { CATEGORIES, PRIORITIES, STATUSES, date, initials } from "./types";
 import type { Staff, Tenant, Ticket, TicketList, User } from "./types";
 
@@ -477,8 +477,7 @@ function Thread({
   notify: (text: string) => void;
   refresh: () => void;
 }) {
-  const [draft, setDraft] = useState(""),
-    [internal, setInternal] = useState(false),
+  const [internal, setInternal] = useState(false),
     [busy, setBusy] = useState(false),
     [reminder, setReminder] = useState(false);
   const act = async (
@@ -571,6 +570,7 @@ function Thread({
         {progress.map((status, index) => (
           <span
             key={status}
+            aria-current={ticket.status === status ? "step" : undefined}
             className={
               ticket.status === status
                 ? "current"
@@ -579,12 +579,14 @@ function Thread({
                   : ""
             }
           >
-            <i>
-              {index < progress.indexOf(ticket.status) ? (
-                <Check size={10} />
-              ) : null}
-            </i>
-            <b>{STATUSES[status]}</b>
+            <span className="status-step-label">
+              <i>
+                {index < progress.indexOf(ticket.status) ? (
+                  <Check size={10} />
+                ) : null}
+              </i>
+              <b>{STATUSES[status]}</b>
+            </span>
           </span>
         ))}
       </div>
@@ -684,7 +686,7 @@ function Thread({
                 )}
                 <time>{date(item.at)}</time>
               </div>
-              <p>{item.message.body}</p>
+              <MessageContent message={item.message} />
             </article>
           ),
         )}
@@ -720,6 +722,7 @@ function Thread({
             <div className="composer-tabs">
               <button
                 className={!internal ? "selected" : ""}
+                disabled={busy}
                 onClick={() => setInternal(false)}
               >
                 <MessageSquare size={14} />
@@ -728,6 +731,7 @@ function Thread({
               {user.is_staff && (
                 <button
                   className={internal ? "selected" : ""}
+                  disabled={busy}
                   onClick={() => setInternal(true)}
                 >
                   <LockKeyhole size={13} />
@@ -740,59 +744,39 @@ function Thread({
                   : "Bu talep üzerinden paylaşılır"}
               </span>
             </div>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                if (
-                  await act(
-                    internal
-                      ? `/admin/tickets/${ticket.id}/notes`
-                      : `/tickets/${ticket.id}/messages`,
-                    { body: draft, version: ticket.version },
-                    internal ? "İç not kaydedildi." : "Mesajınız gönderildi.",
-                  )
-                )
-                  setDraft("");
-              }}
-            >
-              <textarea
-                aria-label={internal ? "İç not" : "Mesajınız"}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                minLength={2}
-                maxLength={10000}
-                required
-                rows={3}
-                placeholder={
-                  internal
-                    ? "Ekip için notunuzu yazın…"
-                    : "Mesajınızı buraya yazın…"
-                }
-                className={internal ? "internal-input" : ""}
-              />
-              <div className="composer-actions">
-                <small>
-                  {internal ? (
-                    <>
-                      <LockKeyhole size={12} /> Müşteriye gösterilmez
-                    </>
-                  ) : (
-                    <>Yanıtınız talep geçmişine eklenir.</>
-                  )}
-                </small>
-                <button
-                  className="button primary"
-                  disabled={busy || draft.trim().length < 2}
-                >
-                  <Send size={15} />
-                  {busy
-                    ? "Kaydediliyor…"
-                    : internal
-                      ? "Notu kaydet"
-                      : "Mesajı gönder"}
-                </button>
+            {[false, ...(user.is_staff ? [true] : [])].map((isInternal) => (
+              <div key={String(isInternal)} hidden={isInternal !== internal}>
+                <MessageComposer
+                  internal={isInternal}
+                  busy={busy}
+                  onSend={async (payload) => {
+                    setBusy(true);
+                    payload.set("version", String(ticket.version));
+                    try {
+                      const updated = await api<Ticket>(
+                        isInternal
+                          ? `/admin/tickets/${ticket.id}/notes/with-files`
+                          : `/tickets/${ticket.id}/messages/with-files`,
+                        { method: "POST", body: payload },
+                      );
+                      onUpdate(updated);
+                      notify(
+                        isInternal
+                          ? "İç not kaydedildi."
+                          : "Mesajınız gönderildi.",
+                      );
+                      return true;
+                    } catch (err) {
+                      notify((err as Error).message);
+                      refresh();
+                      return false;
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                />
               </div>
-            </form>
+            ))}
           </>
         )}
         <div className="ticket-actions">

@@ -1,0 +1,454 @@
+/* Comfortable type and contrast on every support screen. */
+.status-step-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  margin: -5px -4px;
+  border: 1px solid transparent;
+  border-radius: 20px;
+}
+.status-track .current .status-step-label {
+  background: #fff6cc;
+  border-color: #eed06d;
+  box-shadow:
+    0 0 0 3px #ffdd5720,
+    0 0 15px 5px #ffd84d55;
+}
+.status-track .current b {
+  color: #644b00;
+}
+.status-track .current i {
+  border-color: #f7df7c;
+  background: #9e7610;
+}
+.page-intro p,
+.sidebar-help p,
+.login-story > p {
+  color: #505970;
+}
+:root {
+  font-size: 16px;
+  --muted: #505970;
+}
+.button,
+.text-button,
+.nav-item,
+.list-tabs button,
+.composer-tabs button,
+.composer-actions .button,
+.ticket-actions .text-button {
+  font-size: 15px;
+}
+.button {
+  min-height: 42px;
+}
+input,
+select,
+textarea,
+.search-box input,
+.admin-controls select {
+  font-size: 16px;
+}
+.page-intro p,
+.ticket-title,
+.ticket-row h3,
+.management-name b,
+.reminder-card h3,
+.notice-copy,
+.login-card p {
+  font-size: 16px;
+}
+.detail-heading h2 {
+  font-size: 24px;
+}
+.list-heading h2,
+.panel-head h2 {
+  font-size: 18px;
+}
+.message-head {
+  font-size: 14px;
+  gap: 8px;
+}
+.message-head time,
+.detail-heading p,
+.detail-assignee,
+.admin-controls label,
+.composer-tabs > span,
+.editor-count,
+.status-track b {
+  font-size: 13px;
+  color: #505970;
+}
+.message p,
+.plain-message,
+.rich-message,
+.rich-input {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #252c43;
+}
+.support-label {
+  color: #246758;
+}
+.message.internal .support-label {
+  color: #755016;
+}
+.toast button {
+  color: #e3dff8;
+}
+.workspace {
+  min-height: 860px;
+}
+.conversation {
+  min-height: 230px;
+}
+.message {
+  padding: 17px 18px;
+}
+.message-head + .rich-message {
+  margin-top: 12px;
+}
+.rich-message,
+.rich-input {
+  overflow-wrap: anywhere;
+}
+.rich-message p {
+  margin: 0 0 8px;
+  white-space: normal;
+}
+.rich-message p:last-child {
+  margin-bottom: 0;
+}
+.rich-message ul,
+.rich-message ol,
+.rich-input ul,
+.rich-input ol {
+  padding-left: 24px;
+  margin: 8px 0;
+}
+.rich-message li p,
+.rich-input li p {
+  margin: 0;
+}
+.rich-message a,
+.rich-input a {
+  color: #3529a0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rich-message blockquote,
+.rich-input blockquote {
+  border-left: 3px solid #a79bda;
+  padding-left: 14px;
+  margin: 10px 0;
+  color: #505970;
+}
+.rich-message code,
+.rich-input code {
+  background: #efedf7;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 14px;
+}
+.rich-message pre {
+  white-space: pre-wrap;
+}
+.message-editor {
+  border: 1px solid #bfc3d5;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.message-editor:focus-within {
+  border-color: #6854b4;
+  box-shadow: 0 0 0 2px #6854b415;
+}
+.private-editor {
+  background: #fffaed;
+}
+.message-editor.drop-active {
+  border: 2px dashed #362dae;
+  background: #f3f1ff;
+}
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 6px 10px;
+  background: #f7f7fb;
+  border-bottom: 1px solid #e1e3ed;
+}
+.editor-toolbar button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 5px;
+  color: #46506a;
+}
+.editor-toolbar button:hover {
+  background: #e9e5f5;
+}
+.editor-toolbar button.active {
+  background: #e5def8;
+  color: #362dae;
+}
+.toolbar-divider {
+  height: 18px;
+  width: 1px;
+  background: #d5d8e4;
+  margin: 0 4px;
+}
+.editor-content {
+  position: relative;
+}
+.rich-input {
+  min-height: 108px;
+  max-height: 220px;
+  padding: 13px 15px;
+  overflow-y: auto;
+  outline: none;
+}
+.rich-input p {
+  margin: 0 0 8px;
+}
+.rich-input p:last-child {
+  margin-bottom: 0;
+}
+.editor-placeholder {
+  position: absolute;
+  left: 15px;
+  top: 13px;
+  right: 15px;
+  pointer-events: none;
+  color: #606a7e;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.editor-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid #e1e3ed;
+}
+.editor-link input {
+  flex: 1;
+}
+.editor-link > button:last-child {
+  display: flex;
+  padding: 8px;
+}
+.editor-file-hint {
+  display: flex;
+  gap: 7px;
+  padding: 6px 14px 10px;
+  align-items: flex-start;
+  color: #505970;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.message-editor .composer-actions {
+  padding: 10px 12px;
+  margin: 0;
+  border-top: 1px solid #e1e3ed;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.editor-count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.editor-error {
+  color: #a12b35;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+.draft-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  padding: 0 12px 10px;
+}
+.draft-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dce0ea;
+  border-radius: 7px;
+  padding: 7px;
+  background: #fff;
+  min-width: 0;
+}
+.draft-file img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.draft-file > span,
+.message-file > span {
+  flex: 1;
+  min-width: 0;
+}
+.draft-file b,
+.message-file b {
+  display: block;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.draft-file small,
+.message-file small {
+  display: block;
+  font-size: 13px;
+  color: #505970;
+  margin-top: 3px;
+}
+.draft-file button {
+  display: flex;
+  padding: 7px;
+  border-radius: 4px;
+}
+.draft-file button:hover {
+  background: #f5eef0;
+}
+.message-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.message-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d8dce8;
+  border-radius: 8px;
+  background: #fff;
+}
+.message-file:hover {
+  border-color: #8172bc;
+  background: #fcfbff;
+}
+.message-file.image-file {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  padding: 8px;
+}
+.message-file img {
+  grid-column: 1 / -1;
+  max-height: 220px;
+  width: 100%;
+  object-fit: contain;
+  background: #f3f4f8;
+  border-radius: 4px;
+}
+.message-file:focus-visible {
+  outline: 3px solid #362dae;
+  outline-offset: 2px;
+}
+@media (max-width: 1200px) {
+  .status-track {
+    gap: 10px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .status-track > span {
+    flex: initial;
+  }
+  .status-track > span:not(:last-child):after {
+    display: none;
+  }
+  .composer-tabs {
+    flex-wrap: wrap;
+  }
+  .composer-tabs > span {
+    margin-left: 0;
+  }
+}
+@media (max-width: 640px) {
+  .workspace {
+    min-height: 560px;
+  }
+  .detail-heading h2 {
+    font-size: 21px;
+  }
+  .detail-kicker {
+    flex-wrap: wrap;
+  }
+  .message {
+    padding: 14px;
+  }
+  .message-head time {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .composer {
+    padding: 14px 12px 0;
+  }
+  .composer-tabs > span {
+    width: 100%;
+  }
+  .editor-toolbar {
+    padding: 5px;
+    gap: 0;
+  }
+  .editor-toolbar button {
+    min-width: 32px;
+    height: 38px;
+  }
+  .toolbar-divider {
+    margin: 0 2px;
+  }
+  .message-editor .composer-actions {
+    gap: 8px;
+    padding: 10px;
+  }
+  .composer-actions .button {
+    font-size: 14px;
+    padding: 9px 10px;
+  }
+  .editor-count {
+    width: 100%;
+    order: 3;
+    text-align: right;
+  }
+  .composer-actions .button.primary {
+    margin-left: auto;
+  }
+  .draft-files,
+  .message-files {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-controls {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .admin-controls select {
+    padding: 10px;
+  }
+  .ticket-actions .text-button {
+    font-size: 14px;
+  }
+  .app-footer {
+    flex-wrap: wrap;
+  }
+  .list-tabs {
+    gap: 15px;
+  }
+  .page-intro {
+    flex-wrap: wrap;
+  }
+  .new-ticket {
+    margin-top: 0;
+  }
+  .editor-placeholder {
+    font-size: 15px;
+  }
+}

@@ -23,6 +23,7 @@ export default defineConfig({
         PUBLIC_URL: "http://localhost:5174",
         PYTHONPATH: path.join(root, "backend"),
         DATABASE_URL: `sqlite:///${path.join(root, "data", "e2e.db").replaceAll("\\", "/")}`,
+        UPLOAD_DIR: path.join(root, "data", "e2e-uploads"),
       },
     },
     {

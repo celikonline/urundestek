@@ -87,8 +87,21 @@ class Message(Base):
     ticket_id: Mapped[str] = mapped_column(String(36))
     author_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     body: Mapped[str] = mapped_column(Text)
+    body_html: Mapped[str | None] = mapped_column(Text, nullable=True)
     kind: Mapped[str] = mapped_column(String(20))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class Attachment(Base):
+    __tablename__ = "attachments"
+    __table_args__ = (ForeignKeyConstraint(["ticket_id", "tenant_id"], ["tickets.id", "tickets.tenant_id"]), Index("ix_attachment_message", "message_id"))
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    tenant_id: Mapped[str] = mapped_column(String(36))
+    ticket_id: Mapped[str] = mapped_column(String(36))
+    message_id: Mapped[str] = mapped_column(ForeignKey("messages.id"))
+    filename: Mapped[str] = mapped_column(String(200))
+    content_type: Mapped[str] = mapped_column(String(100))
+    size: Mapped[int] = mapped_column(Integer)
 
 
 class TicketEvent(Base):

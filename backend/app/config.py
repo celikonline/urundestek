@@ -16,6 +16,7 @@ class Settings:
     senseik_api_url: str = os.getenv("SENSEIK_API_URL", "").rstrip("/")
     senseik_web_origin: str = os.getenv("SENSEIK_WEB_ORIGIN", "").rstrip("/")
     run_reminder_worker: bool = os.getenv("RUN_REMINDER_WORKER", "true").lower() == "true"
+    upload_dir: Path = Path(os.getenv("UPLOAD_DIR", str(ROOT / "data" / "uploads")))
 
     @property
     def origins(self):

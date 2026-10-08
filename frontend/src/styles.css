@@ -12,7 +12,7 @@
   --soft: #f7f8fc;
   --white: #fff;
   --radius: 12px;
-  font-size: 14px;
+  font-size: 16px;
 }
 * {
   box-sizing: border-box;
@@ -98,7 +98,7 @@ select {
   background: #dcd9f8;
 }
 small {
-  font-size: 12px;
+  font-size: 13px;
 }
 .muted {
   color: var(--muted);
@@ -152,7 +152,7 @@ small {
   align-items: center;
   gap: 6px;
   color: var(--purple);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   padding: 5px 0;
   text-align: left;
@@ -161,7 +161,7 @@ small {
   text-decoration: underline;
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 13px;
   letter-spacing: 1.35px;
   font-weight: 800;
   color: #716b9c;
@@ -182,7 +182,7 @@ small {
 }
 .brand small {
   display: block;
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: 3.6px;
   line-height: 1.6;
   margin-top: 5px;
@@ -234,7 +234,7 @@ small {
 .avatar.small {
   width: 34px;
   height: 34px;
-  font-size: 11px;
+  font-size: 13px;
   border-radius: 50%;
 }
 .small-avatar {
@@ -246,7 +246,7 @@ small {
   background: #eeedf9;
   color: #6a619f;
   border-radius: 50%;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 750;
   flex-shrink: 0;
 }
@@ -256,7 +256,7 @@ small {
   gap: 6px;
   border-radius: 5px;
   padding: 4px 7px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 650;
   white-space: nowrap;
   line-height: 1.3;
@@ -288,7 +288,7 @@ small {
   color: #6f7488;
 }
 .priority {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: #8c692d;
 }
@@ -323,7 +323,7 @@ small {
   align-items: center;
   justify-content: center;
   background: #f2f1fb;
-  color: #a19ac4;
+  color: #505970;
   border: 1px solid #e9e6f6;
   width: 68px;
   height: 68px;
@@ -379,9 +379,9 @@ small {
   padding-left: 9px;
 }
 .workspace-label {
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: 1.6px;
-  color: #9b9cac;
+  color: #505970;
   font-weight: 800;
   margin: 42px 13px 14px;
 }
@@ -395,7 +395,7 @@ small {
   align-items: center;
   gap: 12px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
   padding: 13px 13px;
   border-radius: 8px;
   text-align: left;
@@ -410,10 +410,10 @@ small {
   font-weight: 750;
 }
 .nav-separator {
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: 1.5px;
   font-weight: 750;
-  color: #9b9cac;
+  color: #505970;
   padding: 24px 13px 9px;
 }
 .sidebar-bottom {
@@ -430,11 +430,11 @@ small {
 .support-note b {
   display: block;
   color: #5e577c;
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 8px;
 }
 .support-note p {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.8;
   margin-top: 7px;
   max-width: 160px;
@@ -445,16 +445,16 @@ small {
   align-items: center;
   gap: 9px;
   padding: 22px 7px 16px;
-  color: #9790af;
+  color: #505970;
 }
 .tenant-context b {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
   color: #5b5c76;
 }
 .tenant-context small {
-  font-size: 9px;
-  color: #9496a8;
+  font-size: 13px;
+  color: #505970;
   display: block;
   margin-top: 4px;
 }
@@ -469,10 +469,10 @@ small {
   letter-spacing: -0.3px;
 }
 .powered span {
-  font-size: 8px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0;
-  color: #a1a3b1;
+  color: #505970;
 }
 .main-shell {
   margin-left: 228px;
@@ -493,8 +493,8 @@ small {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 11px;
-  color: #8f91a4;
+  font-size: 13px;
+  color: #505970;
 }
 .breadcrumb b {
   font-weight: 600;
@@ -510,8 +510,8 @@ small {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
-  color: #8a8d9d;
+  font-size: 13px;
+  color: #505970;
   margin-right: 9px;
 }
 .connection i {
@@ -532,15 +532,15 @@ small {
   gap: 9px;
 }
 .user-summary b {
-  font-size: 11px;
+  font-size: 13px;
   display: block;
   font-weight: 650;
 }
 .user-summary small {
-  font-size: 9px;
+  font-size: 13px;
   display: block;
   margin-top: 3px;
-  color: #9698a9;
+  color: #505970;
 }
 .notification-button {
   position: relative;
@@ -553,7 +553,7 @@ small {
   border: 2px solid white;
   color: white;
   border-radius: 10px;
-  font-size: 8px;
+  font-size: 13px;
   min-width: 16px;
   height: 16px;
   line-height: 12px;
@@ -578,13 +578,13 @@ small {
 }
 .page-intro p {
   color: #818499;
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 8px;
   line-height: 1.7;
 }
 .new-ticket {
   padding: 12px 18px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .new-ticket > span {
   font-size: 21px;
@@ -595,8 +595,8 @@ small {
   display: flex;
   justify-content: space-between;
   gap: 15px;
-  font-size: 9px;
-  color: #a1a4b4;
+  font-size: 13px;
+  color: #505970;
   padding: 20px 1px 0;
 }
 .app-footer > span:last-child {
@@ -641,9 +641,9 @@ small {
   gap: 8px;
 }
 .list-heading h2 > span {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 650;
-  color: #928baf;
+  color: #505970;
   background: #f1eff9;
   border-radius: 5px;
   padding: 3px 6px;
@@ -656,7 +656,7 @@ small {
   border-radius: 7px;
   margin: 8px 19px 14px;
   padding: 0 10px;
-  color: #aaa9ba;
+  color: #505970;
   background: #fafafd;
 }
 .search-box input {
@@ -664,7 +664,7 @@ small {
   border: 0;
   outline: none;
   padding: 10px 0;
-  font-size: 10px;
+  font-size: 13px;
   border-radius: 0;
 }
 .search-box:focus-within {
@@ -677,8 +677,8 @@ small {
   border-bottom: 1px solid var(--line);
 }
 .list-tabs button {
-  font-size: 11px;
-  color: #9291a5;
+  font-size: 13px;
+  color: #505970;
   padding: 8px 1px 12px;
   border-bottom: 2px solid transparent;
 }
@@ -692,13 +692,13 @@ small {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 9px;
-  color: #9694a8;
+  font-size: 13px;
+  color: #505970;
 }
 .firm-filter select {
   appearance: none;
   border: 0;
-  font-size: 10px;
+  font-size: 13px;
   padding: 5px 3px;
   font-weight: 650;
   color: #696183;
@@ -712,11 +712,11 @@ small {
   background: #faf9fe;
 }
 .advanced-filters select {
-  font-size: 10px;
+  font-size: 13px;
   padding: 8px 6px;
 }
 .advanced-filters .text-button {
-  font-size: 9px;
+  font-size: 13px;
 }
 .list-items {
   flex: 1;
@@ -747,18 +747,18 @@ small {
   gap: 8px;
 }
 .ticket-number {
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 750;
   color: #8e85ad;
   letter-spacing: 0.2px;
   font-variant-numeric: tabular-nums;
 }
 .row-date {
-  font-size: 9px;
-  color: #a1a0b2;
+  font-size: 13px;
+  color: #505970;
 }
 .ticket-row h3 {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.65;
   margin: 8px 0 12px;
   font-weight: 650;
@@ -773,8 +773,8 @@ small {
   gap: 8px;
 }
 .row-firm {
-  font-size: 9px;
-  color: #9491a6;
+  font-size: 13px;
+  color: #505970;
   display: block;
   margin: -6px 0 10px;
 }
@@ -784,8 +784,8 @@ small {
   align-items: center;
   gap: 6px;
   padding: 13px;
-  color: #aaa5bb;
-  font-size: 9px;
+  color: #505970;
+  font-size: 13px;
   border-top: 1px solid var(--line);
 }
 .pagination {
@@ -795,8 +795,8 @@ small {
   gap: 14px;
   padding: 8px;
   border-top: 1px solid var(--line);
-  font-size: 10px;
-  color: #8e8ba3;
+  font-size: 13px;
+  color: #505970;
 }
 .ticket-detail {
   display: flex;
@@ -816,10 +816,10 @@ small {
   gap: 12px;
 }
 .detail-kicker > span:first-child {
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: 0.8px;
   font-weight: 750;
-  color: #9c95af;
+  color: #505970;
 }
 .detail-heading h2 {
   font-size: 19px;
@@ -828,8 +828,8 @@ small {
   line-height: 1.5;
 }
 .detail-heading p {
-  font-size: 10px;
-  color: #9491a7;
+  font-size: 13px;
+  color: #505970;
   margin-top: 8px;
   display: flex;
   gap: 9px;
@@ -853,10 +853,10 @@ small {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 8px;
+  font-size: 13px;
   flex: 1;
   position: relative;
-  color: #b1abc1;
+  color: #505970;
   white-space: nowrap;
 }
 .status-track > span:not(:last-child):after {
@@ -901,13 +901,13 @@ small {
   gap: 9px;
   padding: 14px 26px;
   border-bottom: 1px solid #f1eff6;
-  font-size: 10px;
+  font-size: 13px;
   color: #6c6482;
 }
 .detail-assignee small {
   display: block;
-  font-size: 8px;
-  color: #a39db3;
+  font-size: 13px;
+  color: #505970;
   margin-top: 3px;
 }
 .detail-assignee > .priority {
@@ -925,8 +925,8 @@ small {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  color: #a39caf;
-  font-size: 8px;
+  color: #505970;
+  font-size: 13px;
   margin: 2px 0 20px;
   flex-wrap: wrap;
 }
@@ -937,8 +937,8 @@ small {
   border-radius: 50%;
 }
 .timeline-event time {
-  font-size: 8px;
-  color: #beb8c9;
+  font-size: 13px;
+  color: #505970;
 }
 .message {
   border: 1px solid #e9e5f2;
@@ -966,7 +966,7 @@ small {
   display: flex;
   gap: 7px;
   align-items: center;
-  font-size: 10px;
+  font-size: 13px;
   flex-wrap: wrap;
 }
 .message-head b {
@@ -974,11 +974,11 @@ small {
 }
 .message-head time {
   margin-left: auto;
-  color: #aaa1b7;
-  font-size: 8px;
+  color: #505970;
+  font-size: 13px;
 }
 .support-label {
-  font-size: 8px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 3px;
@@ -992,7 +992,7 @@ small {
   color: #927028;
 }
 .message p {
-  font-size: 11px;
+  font-size: 13px;
   color: #69617c;
   line-height: 1.9;
   margin-top: 10px;
@@ -1004,8 +1004,8 @@ small {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  font-size: 8px;
-  color: #b6afc3;
+  font-size: 13px;
+  color: #505970;
   padding: 2px 0 11px;
 }
 .composer {
@@ -1023,21 +1023,21 @@ small {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 650;
-  color: #9690a7;
+  color: #505970;
   padding: 3px 0;
 }
 .composer-tabs button.selected {
   color: #544181;
 }
 .composer-tabs > span {
-  font-size: 8px;
-  color: #b0a9bf;
+  font-size: 13px;
+  color: #505970;
   margin-left: auto;
 }
 .composer textarea {
-  font-size: 11px;
+  font-size: 13px;
   padding: 10px 12px;
   min-height: 68px;
   border-color: #e8e3f1;
@@ -1059,11 +1059,11 @@ small {
   display: flex;
   gap: 5px;
   align-items: center;
-  color: #b0a8bd;
-  font-size: 8px;
+  color: #505970;
+  font-size: 13px;
 }
 .composer-actions .button {
-  font-size: 10px;
+  font-size: 13px;
   padding: 9px 12px;
 }
 .ticket-actions {
@@ -1075,8 +1075,8 @@ small {
   flex-wrap: wrap;
 }
 .ticket-actions .text-button {
-  font-size: 9px;
-  color: #9a91ae;
+  font-size: 13px;
+  color: #505970;
   gap: 5px;
 }
 .ticket-actions .close-action {
@@ -1089,7 +1089,7 @@ small {
   justify-content: space-between;
   padding: 5px 0 15px;
   gap: 10px;
-  font-size: 11px;
+  font-size: 13px;
   color: #6c7582;
 }
 .closed-banner > span {
@@ -1098,7 +1098,7 @@ small {
   gap: 6px;
 }
 .closed-banner .button {
-  font-size: 10px;
+  font-size: 13px;
 }
 .admin-controls {
   display: grid;
@@ -1109,12 +1109,12 @@ small {
   border-bottom: 1px solid #f0edf5;
 }
 .admin-controls label {
-  font-size: 8px;
+  font-size: 13px;
   font-weight: 650;
-  color: #9b92ae;
+  color: #505970;
 }
 .admin-controls select {
-  font-size: 10px;
+  font-size: 13px;
   padding: 7px 8px;
   margin-top: 5px;
   border-color: #e9e4f2;
@@ -1146,7 +1146,7 @@ small {
   letter-spacing: -0.5px;
 }
 .form-intro {
-  font-size: 12px;
+  font-size: 13px;
   color: #888099;
   line-height: 1.8;
   margin-bottom: 23px;
@@ -1156,7 +1156,7 @@ small {
   flex-direction: column;
   gap: 8px;
   margin: 17px 0 0;
-  font-size: 12px;
+  font-size: 13px;
   color: #5e5575;
   font-weight: 650;
 }
@@ -1173,8 +1173,8 @@ small {
 }
 .hint {
   display: block;
-  font-size: 10px;
-  color: #9990a9;
+  font-size: 13px;
+  color: #505970;
   font-weight: 400;
   margin-top: 9px;
   line-height: 1.6;
@@ -1193,7 +1193,7 @@ small {
   border: 1px solid #f5dadd;
   padding: 10px 12px;
   border-radius: 7px;
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 14px;
   line-height: 1.7;
 }
@@ -1201,7 +1201,7 @@ small {
   padding: 12px;
   background: #f3f1fb;
   border-radius: 7px;
-  font-size: 11px;
+  font-size: 13px;
   color: #85719f;
   margin-top: 15px;
 }
@@ -1227,10 +1227,10 @@ small {
   align-items: center;
 }
 .panel-head h2 svg {
-  color: #9a8db4;
+  color: #505970;
 }
 .panel-head .muted {
-  font-size: 11px;
+  font-size: 13px;
 }
 .segment {
   display: flex;
@@ -1241,9 +1241,9 @@ small {
   border-radius: 7px;
 }
 .segment button {
-  font-size: 10px;
+  font-size: 13px;
   padding: 6px 10px;
-  color: #9b94ac;
+  color: #505970;
   border-radius: 5px;
 }
 .segment button.selected {
@@ -1281,14 +1281,14 @@ small {
   margin: 8px 0 4px;
 }
 .reminder-date {
-  font-size: 11px;
+  font-size: 13px;
   color: #82788e;
   display: flex;
   gap: 15px;
   align-items: center;
 }
 .reminder-card .text-button {
-  font-size: 10px;
+  font-size: 13px;
   color: #93829c;
 }
 .reminder-buttons {
@@ -1298,7 +1298,7 @@ small {
   align-items: center;
 }
 .reminder-buttons .button {
-  font-size: 10px;
+  font-size: 13px;
   padding: 8px 11px;
 }
 .management-list {
@@ -1323,27 +1323,27 @@ small {
   font-size: 14px;
 }
 .management-name p {
-  font-size: 10px;
-  color: #9990a9;
+  font-size: 13px;
+  color: #505970;
   margin-top: 6px;
   overflow-wrap: anywhere;
 }
 .management-name small {
-  font-size: 10px;
-  color: #9e92b2;
+  font-size: 13px;
+  color: #505970;
 }
 .management-row .button {
-  font-size: 10px;
+  font-size: 13px;
   padding: 8px 12px;
 }
 .management-row select {
   max-width: 190px;
-  font-size: 11px;
+  font-size: 13px;
   padding: 8px 9px;
 }
 .open-count,
 .role-label {
-  font-size: 10px;
+  font-size: 13px;
   color: #91819f;
 }
 .notifications {
@@ -1374,7 +1374,7 @@ small {
   flex-shrink: 0;
 }
 .notice b {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 650;
   line-height: 1.7;
   display: block;
@@ -1382,8 +1382,8 @@ small {
 .notice small {
   display: block;
   margin-top: 5px;
-  color: #a496b5;
-  font-size: 9px;
+  color: #505970;
+  font-size: 13px;
 }
 .notice .unread-dot {
   margin-left: auto;
@@ -1402,7 +1402,7 @@ small {
   align-items: center;
   gap: 11px;
   z-index: 100;
-  font-size: 12px;
+  font-size: 13px;
   max-width: calc(100vw - 35px);
   width: max-content;
 }
@@ -1410,7 +1410,7 @@ small {
   color: #50d3c6;
 }
 .toast button {
-  color: #b9b2d5;
+  color: #505970;
   display: flex;
   align-items: center;
   margin-left: 8px;
@@ -1430,8 +1430,8 @@ small {
   border-bottom: 1px solid #f2f0f7;
 }
 .login-nav > span {
-  font-size: 11px;
-  color: #a29bb5;
+  font-size: 13px;
+  color: #505970;
 }
 .login-layout {
   width: 1100px;
@@ -1458,7 +1458,7 @@ small {
 .login-story > p {
   font-size: 14px;
   line-height: 1.9;
-  color: #9690a6;
+  color: #505970;
   margin-top: 22px;
 }
 .story-items {
@@ -1471,12 +1471,12 @@ small {
   display: flex;
   align-items: center;
   gap: 11px;
-  font-size: 11px;
+  font-size: 13px;
   color: #6a617e;
 }
 .story-items svg {
   width: 18px;
-  color: #9387b6;
+  color: #505970;
 }
 .story-mark {
   display: flex;
@@ -1488,7 +1488,7 @@ small {
 .story-mark span {
   font-size: 13px;
   font-weight: 650;
-  color: #b1a4c8;
+  color: #505970;
 }
 .login-card {
   border: 1px solid #ece8f4;
@@ -1511,8 +1511,8 @@ small {
   line-height: 1.6;
 }
 .login-card > p {
-  font-size: 11px;
-  color: #9c91ab;
+  font-size: 13px;
+  color: #505970;
   line-height: 1.9;
   margin: 10px 0 20px;
 }
@@ -1529,7 +1529,7 @@ small {
   align-items: center;
   gap: 7px;
   padding: 13px 0;
-  font-size: 10px;
+  font-size: 13px;
   color: #9382ac;
   margin-top: 5px;
 }
@@ -1556,21 +1556,21 @@ small {
 }
 .demo-account b {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
 }
 .demo-account small {
   display: block;
-  font-size: 9px;
-  color: #a194b0;
+  font-size: 13px;
+  color: #505970;
   margin-top: 5px;
 }
 .demo-account > svg {
   margin-left: auto;
-  color: #c5b6d5;
+  color: #505970;
 }
 .other-accounts {
-  font-size: 10px;
-  color: #9a8aab;
+  font-size: 13px;
+  color: #505970;
   margin-top: 16px;
 }
 .other-accounts summary,
@@ -1585,11 +1585,11 @@ small {
   margin-top: 12px;
 }
 .demo-options .button {
-  font-size: 10px;
+  font-size: 13px;
   justify-content: flex-start;
 }
 .staff-login {
-  font-size: 11px;
+  font-size: 13px;
   color: #80708e;
   margin-top: 24px;
   padding-top: 19px;
@@ -1603,8 +1603,8 @@ small {
   display: flex;
   gap: 6px;
   align-items: center;
-  font-size: 8px;
-  color: #b3a9be;
+  font-size: 13px;
+  color: #505970;
   margin-top: 25px;
 }
 .login-footer {
@@ -1613,12 +1613,12 @@ small {
   gap: 15px;
   padding: 20px 7%;
   border-top: 1px solid #f1edf6;
-  font-size: 10px;
-  color: #b2a8bf;
+  font-size: 13px;
+  color: #505970;
 }
 .login-footer span {
   font-weight: 650;
-  color: #998bab;
+  color: #505970;
 }
 /* Primary controls remain readable in the compact support layout. */
 .sidebar nav button {
@@ -1634,14 +1634,14 @@ small {
   font-size: 13px;
 }
 .status {
-  font-size: 11px;
+  font-size: 13px;
 }
 .list-tabs button,
 .composer-tabs button {
-  font-size: 12px;
+  font-size: 13px;
 }
 .search-box input {
-  font-size: 12px;
+  font-size: 13px;
 }
 .list-heading h2 {
   font-size: 14px;
@@ -1649,26 +1649,26 @@ small {
 .ticket-number,
 .row-date,
 .row-firm {
-  font-size: 10px;
+  font-size: 13px;
 }
 .user-summary b {
-  font-size: 12px;
+  font-size: 13px;
 }
 .detail-heading p,
 .detail-assignee {
-  font-size: 11px;
+  font-size: 13px;
 }
 .ticket-actions .text-button {
-  font-size: 11px;
+  font-size: 13px;
 }
 .composer-actions .button {
-  font-size: 12px;
+  font-size: 13px;
 }
 .admin-controls label {
-  font-size: 10px;
+  font-size: 13px;
 }
 .admin-controls select {
-  font-size: 12px;
+  font-size: 13px;
 }
 /* Responsive */
 @media (min-width: 1650px) {
@@ -1698,7 +1698,7 @@ small {
     padding-right: 35px;
   }
   .status-track > span {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 @media (max-width: 1200px) {
@@ -1722,7 +1722,7 @@ small {
     display: none;
   }
   .status-track > span {
-    font-size: 7px;
+    font-size: 13px;
   }
   .status-track {
     padding-inline: 18px;
@@ -1769,7 +1769,7 @@ small {
     padding-inline: 14px;
   }
   .row-date {
-    font-size: 8px;
+    font-size: 13px;
   }
   .list-heading,
   .list-tabs {
@@ -1908,7 +1908,7 @@ small {
     padding: 0 13px;
   }
   .breadcrumb {
-    font-size: 10px;
+    font-size: 13px;
     gap: 7px;
   }
   .topbar-actions {
@@ -1923,15 +1923,15 @@ small {
     font-size: 25px;
   }
   .page-intro .eyebrow {
-    font-size: 8px;
+    font-size: 13px;
     letter-spacing: 1px;
   }
   .page-intro p {
-    font-size: 10px;
+    font-size: 13px;
     max-width: 220px;
   }
   .new-ticket {
-    font-size: 10px;
+    font-size: 13px;
     padding: 10px 12px;
     margin-top: 21px;
     gap: 4px;
@@ -1980,17 +1980,17 @@ small {
     gap: 7px;
   }
   .detail-kicker > span:first-child {
-    font-size: 8px;
+    font-size: 13px;
   }
   .detail-heading p {
-    font-size: 9px;
+    font-size: 13px;
   }
   .status-track {
     padding: 13px 18px;
   }
   .status-track b {
     display: block;
-    font-size: 6px;
+    font-size: 13px;
   }
   .status-track > span {
     gap: 4px;
@@ -2021,29 +2021,29 @@ small {
     margin-left: 0;
   }
   .message p {
-    font-size: 12px;
+    font-size: 13px;
   }
   .message-head {
-    font-size: 10px;
+    font-size: 13px;
   }
   .message-head time {
-    font-size: 8px;
+    font-size: 13px;
   }
   .composer {
     padding: 14px 18px 0;
   }
   .composer textarea {
-    font-size: 12px;
+    font-size: 13px;
   }
   .ticket-actions {
     gap: 12px;
     justify-content: space-between;
   }
   .ticket-actions .text-button {
-    font-size: 8px;
+    font-size: 13px;
   }
   .app-footer {
-    font-size: 8px;
+    font-size: 13px;
     gap: 10px;
   }
   .admin-controls {
@@ -2051,7 +2051,7 @@ small {
     gap: 7px;
   }
   .admin-controls select {
-    font-size: 9px;
+    font-size: 13px;
     padding: 7px 4px;
   }
   .panel-head {
@@ -2088,12 +2088,12 @@ small {
     min-width: 0;
   }
   .reminder-card .text-button {
-    font-size: 9px;
+    font-size: 13px;
     line-height: 1.7;
     overflow-wrap: anywhere;
   }
   .reminder-date {
-    font-size: 10px;
+    font-size: 13px;
     flex-wrap: wrap;
     gap: 6px;
   }
@@ -2107,17 +2107,17 @@ small {
     max-width: calc(100% - 32px);
   }
   .login-foot {
-    font-size: 8px;
+    font-size: 13px;
   }
   .modal {
     padding: 21px;
   }
   .toast {
-    font-size: 11px;
+    font-size: 13px;
     bottom: 16px;
   }
   .panel-head .segment button {
-    font-size: 9px;
+    font-size: 13px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2126,3 +2126,4 @@ small {
     transition: none !important;
   }
 }
+/* Readable typography shared by customer and management screens. */

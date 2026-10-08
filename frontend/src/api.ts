@@ -18,7 +18,9 @@ export async function api<T>(
     ...options,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(options.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
       "X-CSRF-Token": csrf,
       ...options.headers,
     },

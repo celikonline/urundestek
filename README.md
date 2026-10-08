@@ -33,6 +33,8 @@ Windows manuel komutlarında `.venv/Scripts/python` kullanın ve değişkenleri 
 
 - Talep açma; konu/numara, durum, kategori ve öncelik filtresi; sayfalama.
 - Müşteri ve destek ekibi arasında kalıcı yazışma; okunmamış yanıtlar ve uygulama içi bildirimler.
+- Mesajlarda kalın/italik/altı çizili metin, listeler, alıntı, bağlantılar ve geri alma; dosya seçme/sürükleme, Ctrl+V ile ekran görüntüsü yapıştırma ve gönderim öncesi önizleme.
+- Dosya başına 10 MB, mesaj başına 5 dosya ve toplam 25 MB. PNG/JPG/WEBP/GIF, PDF, UTF-8 TXT/CSV ve makrosuz DOCX/XLSX. Dosyalar talep yetkisiyle indirilir; iç not ekleri yalnız destek ekibine açıktır.
 - Açık, inceleniyor, yanıt bekleniyor, çözüldü, kapalı durumları; kapatma ve yeniden açma.
 - Kişisel tarih/saat hatırlatmaları; tamamla/iptal; 24 saatte bir güncel durum isteme.
 - Admin firma filtresi, sorumlu atama, öncelik/durum düzenleme, müşteriye görünmeyen iç notlar.
@@ -57,7 +59,7 @@ docker compose ps
 
 Docker demo girişlerini zorunlu olarak kapatır. İlk platform yöneticisi ortam değişkenlerinden bir kez oluşturulur; sonradan `.env` parolasını değiştirmek mevcut hesabın parolasını değiştirmez. Port `127.0.0.1:8080` üzerinde nginx gelir; API ve PostgreSQL dışarı yayınlanmaz. HTTPS sonlandıran reverse proxy bu porta bağlanmalıdır. Yerel HTTP Docker incelemesi için `PUBLIC_URL=http://localhost:8080` ve `COOKIE_SECURE=false` kullanın.
 
-PostgreSQL volume kalıcıdır. Migration ayrı serviste API'den önce çalışır. Hatırlatma işçisi her 30 saniyede vadesi gelen kayıtları kilitleyerek işler; benzersiz reminder bildirim anahtarı çift bildirimi önler. Web ve API aynı origin altındadır. Proxy IP başlığı nginx tarafından yeniden yazılır; API yalnız bu iç ağdaki proxy üzerinden yayınlanmalıdır. Auth hız sınırı süreç başına IP/uç bazında 30 deneme/dakikadır; mevcut tek API süreci için tasarlanmıştır.
+PostgreSQL ve `support-uploads` dosya volume’ları kalıcıdır. Veritabanı yedeğiyle birlikte dosya volume’unu da yedekleyin. Yerelde ekler `data/uploads` altında saklanır; `UPLOAD_DIR` ile değiştirilebilir. Migration ayrı serviste API'den önce çalışır. Hatırlatma işçisi her 30 saniyede vadesi gelen kayıtları kilitleyerek işler; benzersiz reminder bildirim anahtarı çift bildirimi önler. Web ve API aynı origin altındadır. Proxy IP başlığı nginx tarafından yeniden yazılır; API yalnız bu iç ağdaki proxy üzerinden yayınlanmalıdır. Auth hız sınırı süreç başına IP/uç bazında 30 deneme/dakikadır; mevcut tek API süreci için tasarlanmıştır.
 
 İşçi veya API hataları `docker compose logs api worker` ile görülebilir. Loglarda mesaj/parola/JWT yer almaz; API yanıtlarında korelasyon ID bulunur. Üretimde API dokümantasyon uçları kapalıdır. SQL migration ve alınacak PostgreSQL yedekleri birlikte sürümlenmelidir; volume silen komutlar veriyi siler.
 
@@ -70,7 +72,7 @@ npx --prefix frontend playwright install chromium
 npm run test:e2e --prefix frontend
 ```
 
-API testleri farklı firmayı ve aynı firmadaki başka kullanıcıyı, iç not gizliliğini, CSRF/çıkışı, sürüm çatışmasını, kapatma/yeniden açmayı, tekrar giriş kodunu, hatırlatmaları ve rol değişikliklerini doğrular. Playwright ayrı `data/e2e.db` kullanır; müşteri → admin yanıtı → hatırlatma → kapatma akışını, mobil taşmayı ve klavye modal davranışını kontrol eder. CI aynı komutları çalıştırır.
+API testleri dosya indirme yetkisini, iç not eklerini, geçersiz/büyük dosyaları, HTML temizlemeyi, dosya kayıt hatasında geri almayı ve farklı firmayı ve aynı firmadaki başka kullanıcıyı, iç not gizliliğini, CSRF/çıkışı, sürüm çatışmasını, kapatma/yeniden açmayı, tekrar giriş kodunu, hatırlatmaları ve rol değişikliklerini doğrular. Playwright ayrı `data/e2e.db` kullanır; müşteri → admin yanıtı → hatırlatma → kapatma akışını, gerçek panodan görsel yapıştırmayı, sürüklenen dosyaları, biçimli metnin kalıcılığını, mobil taşmayı ve klavye modal davranışını kontrol eder. CI aynı komutları çalıştırır.
 
 PostgreSQL testleri yalnız izole bir test veritabanında `TEST_DATABASE_URL` ile çalıştırılır; test fixture'ı bu veritabanının tablolarını temizler. Üretim veritabanıyla kullanmayın.
 
@@ -78,4 +80,4 @@ PostgreSQL testleri yalnız izole bir test veritabanında `TEST_DATABASE_URL` il
 
 `backend/app`: ince API uçları, auth, iş servisleri, scoped repository ve modeller. `backend/alembic`: versiyonlu şema. `frontend/src`: müşteri/admin özellikleri ve ortak bileşenler. `integrations/senseik`: ürün bağlantısı. `deployment`: nginx ayarı.
 
-İlk sürümde dosya eki, e-posta/SMS gönderimi, SLA otomasyonu ve eski SenseİK taleplerinin aktarımı yoktur. Hatırlatmalar uygulama içinde bildirim üretir; müşteriye otomatik mesaj veya e-posta gönderildiği iddia edilmez.
+E-posta/SMS gönderimi, SLA otomasyonu ve eski SenseİK taleplerinin aktarımı bu sürüme dahil değildir. Hatırlatmalar uygulama içinde bildirim üretir.

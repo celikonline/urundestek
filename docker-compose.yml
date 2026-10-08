@@ -33,6 +33,7 @@ services:
       db: {condition: service_healthy}
   api:
     <<: *backend
+    volumes: [support-uploads:/srv/data/uploads]
     depends_on:
       migrate: {condition: service_completed_successfully}
     healthcheck:
@@ -55,3 +56,4 @@ services:
     restart: unless-stopped
 volumes:
   support-db:
+  support-uploads:

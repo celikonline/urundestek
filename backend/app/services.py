@@ -5,6 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from .auth import STAFF_ROLES
 from .models import Message, Notification, Reminder, Tenant, Ticket, TicketEvent, User, now, utc
 from .repository import get_ticket, ticket_scope, ticket_view
+from .rich_text import clean_message
+from .attachments import store_files
 
 STATUS_LABELS = {"open": "Açık", "in_progress": "İnceleniyor", "waiting_customer": "Yanıtınız bekleniyor", "resolved": "Çözüldü", "closed": "Kapalı"}
 
@@ -59,18 +61,30 @@ def create_ticket(db, user, data, key):
     return ticket_view(db, ticket, user, True)
 
 
-def add_message(db, user, ticket_id, data, internal=False):
+def add_message(db, user, ticket_id, data, internal=False, files=()):
     ticket = get_ticket(db, user, ticket_id)
     if ticket.status == "closed":
         raise HTTPException(409, "Mesaj yazmak için önce talebi yeniden açın.")
-    if internal:
-        bump(db, ticket, data.version)
-    else:
-        bump(db, ticket, data.version, status="waiting_customer" if user.role in STAFF_ROLES else "open")
-    db.add(Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=user.id, body=data.body, kind="internal" if internal else ("support" if user.role in STAFF_ROLES else "customer")))
-    if not internal:
-        notify(db, ticket, user, f"#{ticket.number} · {user.name} yeni bir yanıt yazdı.")
-    db.commit()
+    body, html = clean_message(data, bool(files))
+    written = []
+    try:
+        if internal:
+            bump(db, ticket, data.version)
+        else:
+            bump(db, ticket, data.version, status="waiting_customer" if user.role in STAFF_ROLES else "open")
+        message = Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=user.id, body=body, body_html=html, kind="internal" if internal else ("support" if user.role in STAFF_ROLES else "customer"))
+        db.add(message)
+        db.flush()
+        if files:
+            store_files(db, ticket, message, files, written)
+        if not internal:
+            notify(db, ticket, user, f"#{ticket.number} · {user.name} yeni bir yanıt yazdı.")
+        db.commit()
+    except Exception:
+        db.rollback()
+        for path in written:
+            path.unlink(missing_ok=True)
+        raise
     return ticket_view(db, ticket, user, True)
 
 

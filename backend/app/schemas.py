@@ -23,7 +23,8 @@ class VersionInput(Input):
 
 
 class MessageInput(VersionInput):
-    body: str = Field(min_length=2, max_length=10000)
+    body: str = Field(default="", max_length=10000)
+    body_html: str | None = Field(default=None, max_length=50000)
 
 
 class ReminderInput(Input):
