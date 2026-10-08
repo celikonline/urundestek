@@ -38,6 +38,11 @@ class Settings:
     ai_knowledge_file: Path = Path(os.getenv("AI_KNOWLEDGE_FILE", "docs/ai-bilgi-bankasi.md"))
     auto_close_days: int = int(os.getenv("AUTO_CLOSE_DAYS", "7") or 0)
     worker_interval_seconds: int = int(os.getenv("WORKER_INTERVAL_SECONDS", "10") or 10)
+    response_target_hours: dict = None
+
+    def __post_init__(self):
+        # Customer-facing first-response promise per priority, in calendar hours.
+        self.response_target_hours = {"urgent": int(os.getenv("RESPONSE_HOURS_URGENT", "2") or 2), "high": int(os.getenv("RESPONSE_HOURS_HIGH", "4") or 4), "normal": int(os.getenv("RESPONSE_HOURS_NORMAL", "8") or 8)}
 
     @property
     def ai_available(self):

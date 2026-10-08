@@ -202,7 +202,7 @@ def process_job(db, job):
     confident = verdict.confidence >= settings.ai_min_confidence and not verdict.needs_human
     if mode == "auto" and confident and reply:
         db.add(Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=bot.id, body=reply, body_html=paragraphs_html(reply), kind="support"))
-        bump_ticket(db, ticket, status="waiting_customer")
+        bump_ticket(db, ticket, status="waiting_customer", **({} if ticket.first_response_at else {"first_response_at": now()}))
         add_event(db, ticket, bot, f"{ASSISTANT_NAME} yanıtladı (güven {int(verdict.confidence * 100)}%)", internal=True)
         notify(db, ticket, bot, f"#{ticket.number} · {ASSISTANT_NAME} yanıt yazdı.", "message", customer_recipients(db, ticket))
         audit(db, None, bot, "ai.reply", "ticket", ticket.id, f"#{ticket.number} güven={verdict.confidence:.2f}", tenant_id=ticket.tenant_id)

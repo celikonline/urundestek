@@ -95,8 +95,10 @@ def add_message(db, user, ticket_id, data, internal=False, files=()):
     try:
         if internal:
             bump(db, ticket, data.version)
+        elif user.role in STAFF_ROLES:
+            bump(db, ticket, data.version, status="waiting_customer", **({} if ticket.first_response_at else {"first_response_at": now()}))
         else:
-            bump(db, ticket, data.version, status="waiting_customer" if user.role in STAFF_ROLES else "open")
+            bump(db, ticket, data.version, status="open")
         message = Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=user.id, body=body, body_html=html, kind="internal" if internal else ("support" if user.role in STAFF_ROLES else "customer"))
         db.add(message)
         db.flush()
@@ -112,6 +114,27 @@ def add_message(db, user, ticket_id, data, internal=False, files=()):
         for path in written:
             path.unlink(missing_ok=True)
         raise
+    return ticket_view(db, ticket, user, True)
+
+
+RATING_LABELS = {1: "Çok kötü", 2: "Kötü", 3: "Orta", 4: "İyi", 5: "Çok iyi"}
+
+
+def rate_ticket(db, user, ticket_id, data):
+    ticket = get_ticket(db, user, ticket_id)
+    if user.role in STAFF_ROLES:
+        raise HTTPException(403, "Değerlendirmeyi yalnız müşteri yapar.")
+    if ticket.status not in {"resolved", "closed"}:
+        raise HTTPException(409, "Değerlendirme talep çözüldükten veya kapandıktan sonra yapılır.")
+    if ticket.rating is not None:
+        raise HTTPException(409, "Bu talep zaten değerlendirildi.")
+    changed = db.execute(update(Ticket).where(Ticket.id == ticket.id, Ticket.rating == None).values(rating=data.score, rating_comment=data.comment.strip() or None, rated_at=now()))
+    if changed.rowcount != 1:
+        raise HTTPException(409, "Bu talep zaten değerlendirildi.")
+    db.refresh(ticket)
+    event(db, ticket, user, f"Müşteri değerlendirmesi: {data.score}/5 · {RATING_LABELS[data.score]}")
+    notify(db, ticket, user, f"#{ticket.number} · Müşteri {data.score}/5 puan verdi." + (" Yorum bıraktı." if ticket.rating_comment else ""), "rating")
+    db.commit()
     return ticket_view(db, ticket, user, True)
 
 
