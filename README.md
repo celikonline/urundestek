@@ -32,6 +32,7 @@ Windows manuel komutlarında `.venv/Scripts/python` kullanın ve değişkenleri 
 ## Özellikler
 
 - Talep açma; konu/numara, durum, kategori ve öncelik filtresi; sayfalama.
+- Yeni talep açıklamasında da zengin metin, dosya seçme/sürükleme ve Ctrl+V ile ekran görüntüsü yapıştırma; görseller ilk mesaja eklenir.
 - Müşteri ve destek ekibi arasında kalıcı yazışma; okunmamış yanıtlar ve uygulama içi bildirimler.
 - Mesajlarda kalın/italik/altı çizili metin, listeler, alıntı, bağlantılar ve geri alma; dosya seçme/sürükleme, Ctrl+V ile ekran görüntüsü yapıştırma ve gönderim öncesi önizleme.
 - Dosya başına 10 MB, mesaj başına 5 dosya ve toplam 25 MB. PNG/JPG/WEBP/GIF, PDF, UTF-8 TXT/CSV ve makrosuz DOCX/XLSX. Dosyalar talep yetkisiyle indirilir; iç not ekleri yalnız destek ekibine açıktır.

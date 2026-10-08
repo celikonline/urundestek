@@ -46,11 +46,21 @@ export function MessageComposer({
   busy,
   onSend,
   draft,
+  beforeEditor,
+  editorLabel,
+  submitLabel,
+  minimumTextLength = 2,
+  onCancel,
 }: {
   internal: boolean;
   busy: boolean;
   onSend: (payload: FormData) => Promise<boolean>;
   draft?: { html: string; key: number } | null;
+  beforeEditor?: React.ReactNode;
+  editorLabel?: string;
+  submitLabel?: string;
+  minimumTextLength?: number;
+  onCancel?: () => void;
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const filesRef = useRef<File[]>([]);
@@ -102,7 +112,7 @@ export function MessageComposer({
     editorProps: {
       attributes: {
         role: "textbox",
-        "aria-label": internal ? "İç not" : "Mesajınız",
+        "aria-label": editorLabel || (internal ? "İç not" : "Mesajınız"),
         "aria-multiline": "true",
         class: "rich-input",
       },
@@ -149,12 +159,12 @@ export function MessageComposer({
         ...editor.options.editorProps,
         attributes: {
           ...editor.options.editorProps.attributes,
-          "aria-label": internal ? "İç not" : "Mesajınız",
+          "aria-label": editorLabel || (internal ? "İç not" : "Mesajınız"),
         },
       },
     });
     editor.setEditable(!busy);
-  }, [editor, internal, busy]);
+  }, [editor, internal, busy, editorLabel]);
   useEffect(() => {
     if (!editor || !draft) return;
     editor.commands.setContent(DOMPurify.sanitize(draft.html));
@@ -182,7 +192,7 @@ export function MessageComposer({
   );
   return (
     <form
-      className={`message-editor ${internal ? "private-editor" : ""} ${dragging ? "drop-active" : ""}`}
+      className={`message-editor ${beforeEditor ? "new-ticket-editor" : ""} ${internal ? "private-editor" : ""} ${dragging ? "drop-active" : ""}`}
       onDragOver={(e) => {
         if (e.dataTransfer.types.includes("Files")) {
           e.preventDefault();
@@ -208,15 +218,18 @@ export function MessageComposer({
           setError("Mesaj en fazla 10.000 karakter olabilir.");
           return;
         }
-        if (text.length < 2 && !files.length) {
-          setError("Mesaj yazın veya dosya ekleyin.");
+        if (text.length < minimumTextLength && !files.length) {
+          setError(
+            `En az ${minimumTextLength} karakter yazın veya dosya ekleyin.`,
+          );
           return;
         }
-        const payload = new FormData();
+        const payload = new FormData(e.currentTarget);
         payload.set("body", text);
         payload.set("body_html", editor.getHTML());
         files.forEach((file) => payload.append("files", file));
         if (await onSend(payload)) {
+          if (editor.isDestroyed) return;
           filesRef.current = [];
           setFiles([]);
           editor.commands.clearContent();
@@ -225,6 +238,7 @@ export function MessageComposer({
         }
       }}
     >
+      {beforeEditor}
       <div
         className="editor-toolbar"
         role="group"
@@ -338,7 +352,9 @@ export function MessageComposer({
           <span className="editor-placeholder">
             {internal
               ? "Ekip için notunuzu yazın…"
-              : "Mesajınızı yazın… Ekran görüntüsünü Ctrl+V ile yapıştırabilirsiniz."}
+              : editorLabel === "Açıklama"
+                ? "Yaşadığınız durumu yazın veya ekran görüntüsünü Ctrl+V ile yapıştırın…"
+                : "Mesajınızı yazın… Ekran görüntüsünü Ctrl+V ile yapıştırabilirsiniz."}
           </span>
         )}
       </div>
@@ -405,16 +421,30 @@ export function MessageComposer({
         <span className="editor-count">
           {state?.length || 0}/10.000{internal && " · İç not"}
         </span>
+        {onCancel && (
+          <button
+            type="button"
+            className="button secondary"
+            disabled={busy}
+            onClick={onCancel}
+          >
+            Vazgeç
+          </button>
+        )}
         <button
           className="button primary"
           disabled={
             busy ||
-            (!files.length && (state?.length || 0) < 2) ||
+            (!files.length && (state?.length || 0) < minimumTextLength) ||
             (state?.length || 0) > 10000
           }
         >
           <Send size={17} />
-          {busy ? "Gönderiliyor…" : internal ? "Notu kaydet" : "Mesajı gönder"}
+          {busy
+            ? submitLabel
+              ? "Oluşturuluyor…"
+              : "Gönderiliyor…"
+            : submitLabel || (internal ? "Notu kaydet" : "Mesajı gönder")}
         </button>
       </div>
     </form>

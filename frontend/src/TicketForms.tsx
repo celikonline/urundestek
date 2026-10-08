@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
-import { Send, BellPlus } from "lucide-react";
+import { BellPlus } from "lucide-react";
 import { api, post } from "./api";
 import { Field, Modal } from "./components";
 import { CATEGORIES, PRIORITIES } from "./types";
+import { MessageComposer } from "./MessageEditor";
 import type { Ticket } from "./types";
 
 export function NewTicket({
@@ -16,88 +17,84 @@ export function NewTicket({
     [error, setError] = useState("");
   const key = useRef(crypto.randomUUID());
   return (
-    <Modal title="Yeni destek talebi" onClose={onClose}>
+    <Modal
+      title="Yeni destek talebi"
+      onClose={() => {
+        if (!busy) onClose();
+      }}
+    >
       <p className="form-intro">
         Konuyu ve yaşadığınız durumu paylaşın. Birlikte çözelim.
       </p>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
+      <MessageComposer
+        internal={false}
+        busy={busy}
+        editorLabel="Açıklama"
+        submitLabel="Talebi oluştur"
+        minimumTextLength={10}
+        onCancel={onClose}
+        beforeEditor={
+          <div className="new-ticket-fields">
+            <Field label="Konu">
+              <input
+                name="subject"
+                minLength={5}
+                maxLength={160}
+                required
+                placeholder="Size hangi konuda yardımcı olabiliriz?"
+                autoFocus
+                disabled={busy}
+              />
+            </Field>
+            <div className="form-grid">
+              <Field label="Kategori">
+                <select name="category" disabled={busy}>
+                  {Object.entries(CATEGORIES).map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Öncelik">
+                <select name="priority" disabled={busy}>
+                  {Object.entries(PRIORITIES).map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <div className="field">
+              <span>Açıklama</span>
+            </div>
+          </div>
+        }
+        onSend={async (payload) => {
           setBusy(true);
           setError("");
-          const f = new FormData(e.currentTarget);
           try {
-            const t = await api<Ticket>("/tickets", {
+            const t = await api<Ticket>("/tickets/with-files", {
               method: "POST",
               headers: { "Idempotency-Key": key.current },
-              body: JSON.stringify(Object.fromEntries(f)),
+              body: payload,
             });
             onCreated(t);
+            return true;
           } catch (err) {
             setError((err as Error).message);
+            return false;
           } finally {
             setBusy(false);
           }
         }}
-      >
-        <Field label="Konu">
-          <input
-            name="subject"
-            minLength={5}
-            maxLength={160}
-            required
-            placeholder="Size hangi konuda yardımcı olabiliriz?"
-            autoFocus
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="Kategori">
-            <select name="category">
-              {Object.entries(CATEGORIES).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Öncelik">
-            <select name="priority">
-              {Object.entries(PRIORITIES).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-        <Field label="Açıklama">
-          <textarea
-            name="body"
-            minLength={10}
-            maxLength={10000}
-            required
-            rows={6}
-            placeholder="Ne yapmak istediniz, ne oldu? Adımları ve varsa hata mesajını yazabilirsiniz."
-          />
-        </Field>
-        <small className="hint">
-          Parola veya kişisel çalışan verisi paylaşmayın.
-        </small>
-        {error && (
-          <p role="alert" className="form-error">
-            {error}
-          </p>
-        )}
-        <div className="modal-actions">
-          <button type="button" className="button secondary" onClick={onClose}>
-            Vazgeç
-          </button>
-          <button className="button primary" disabled={busy}>
-            <Send size={16} />
-            {busy ? "Oluşturuluyor…" : "Talebi oluştur"}
-          </button>
-        </div>
-      </form>
+      />
+      {error && (
+        <p role="alert" className="form-error">
+          {error}
+        </p>
+      )}
     </Modal>
   );
 }

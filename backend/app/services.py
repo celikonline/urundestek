@@ -44,32 +44,45 @@ def bump(db, ticket, expected, **values):
     db.refresh(ticket)
 
 
-def create_ticket(db, user, data, key):
+def create_ticket(db, user, data, key, files=()):
     if not user.tenant_id or user.role in STAFF_ROLES:
         raise HTTPException(403, "Yeni talepler müşteri hesabından açılır.")
     previous = db.scalar(select(Ticket).where(Ticket.created_by == user.id, Ticket.idempotency_key == key))
     if previous:
         return ticket_view(db, previous, user, True)
+    body, html = clean_message(data, bool(files))
+    if len(body) < 10 and not files:
+        raise HTTPException(422, "En az 10 karakterlik açıklama yazın veya dosya ekleyin.")
     # Tenant row lock serializes company-local numbering in PostgreSQL.
     db.scalar(select(Tenant).where(Tenant.id == user.tenant_id).with_for_update())
     number = (db.scalar(select(func.max(Ticket.number)).where(Ticket.tenant_id == user.tenant_id)) or 1000) + 1
     ticket = Ticket(tenant_id=user.tenant_id, created_by=user.id, subject=data.subject, category=data.category, priority=data.priority, number=number, idempotency_key=key)
     db.add(ticket)
+    written = []
     try:
         db.flush()
-        opening = Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=user.id, body=data.body, kind="customer")
+        opening = Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=user.id, body=body, body_html=html, kind="customer")
         db.add(opening)
         db.flush()
+        if files:
+            store_files(db, ticket, opening, files, written)
         event(db, ticket, user, "Talep oluşturuldu")
         notify(db, ticket, user, f"Yeni talep: {ticket.subject}", "ticket")
         queue_job(db, ticket, opening, "created")
         db.commit()
     except IntegrityError:
         db.rollback()
+        for path in written:
+            path.unlink(missing_ok=True)
         previous = db.scalar(select(Ticket).where(Ticket.created_by == user.id, Ticket.idempotency_key == key))
         if not previous:
             raise
         return ticket_view(db, previous, user, True)
+    except Exception:
+        db.rollback()
+        for path in written:
+            path.unlink(missing_ok=True)
+        raise
     return ticket_view(db, ticket, user, True)
 
 

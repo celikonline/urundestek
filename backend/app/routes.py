@@ -98,6 +98,21 @@ def create(data: CreateTicket, idempotency_key: Annotated[str, Header(min_length
     return create_ticket(db, user, data, idempotency_key)
 
 
+@router.post("/tickets/with-files", status_code=201)
+async def create_files(request: Request, idempotency_key: Annotated[str, Header(min_length=8, max_length=100)], user=Depends(current_user), db=Depends(get_db)):
+    async with request.form(max_files=5, max_fields=5, max_part_size=60000) as form:
+        try:
+            data = CreateTicket(subject=form.get("subject"), body=form.get("body", ""), body_html=form.get("body_html"),
+                                category=form.get("category", "general"), priority=form.get("priority", "normal"))
+        except ValidationError:
+            raise HTTPException(422, "Talep alanlarını kontrol edin.")
+        files = form.getlist("files")
+        if any(not isinstance(file, UploadFile) for file in files):
+            raise HTTPException(422, "Geçerli dosyalar seçin.")
+        prepared = await prepare_files(files)
+        return await run_in_threadpool(create_ticket, db, user, data, idempotency_key, prepared)
+
+
 @router.get("/tickets/{ticket_id}")
 def detail(ticket_id: str, user=Depends(current_user), db=Depends(get_db)):
     return ticket_view(db, get_ticket(db, user, ticket_id), user, True)

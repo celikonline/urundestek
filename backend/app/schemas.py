@@ -13,7 +13,8 @@ class Input(BaseModel):
 
 class CreateTicket(Input):
     subject: str = Field(min_length=5, max_length=160)
-    body: str = Field(min_length=10, max_length=10000)
+    body: str = Field(default="", max_length=10000)
+    body_html: str | None = Field(default=None, max_length=50000)
     category: Category = "general"
     priority: Priority = "normal"
 

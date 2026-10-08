@@ -1,4 +1,42 @@
 /* Comfortable type and contrast on every support screen. */
+.message-editor.new-ticket-editor {
+  border: 0;
+  overflow: visible;
+  box-shadow: none;
+}
+.message-editor.new-ticket-editor:focus-within {
+  box-shadow: none;
+}
+.modal:has(.new-ticket-editor) .form-intro {
+  margin-bottom: 12px;
+}
+.new-ticket-editor > :not(.new-ticket-fields) {
+  border-inline: 1px solid #bfc3d5;
+}
+.new-ticket-editor > .editor-toolbar {
+  border-top: 1px solid #bfc3d5;
+  border-radius: 10px 10px 0 0;
+}
+.new-ticket-editor > .composer-actions {
+  border-bottom: 1px solid #bfc3d5;
+  border-radius: 0 0 10px 10px;
+}
+.new-ticket-editor .editor-count {
+  display: none;
+}
+.new-ticket-editor .composer-actions .button.primary {
+  margin-left: auto;
+}
+.new-ticket-fields > .field:last-child {
+  margin-bottom: 8px;
+}
+.new-ticket-fields input,
+.new-ticket-fields select {
+  font-size: 16px;
+}
+.new-ticket-editor .rich-input {
+  min-height: 94px;
+}
 .status-step-label {
   display: inline-flex;
   align-items: center;
