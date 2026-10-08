@@ -2313,3 +2313,13 @@ small {
     gap: 4px;
   }
 }
+.pref-toggle > span {
+  flex: 1;
+  text-align: left;
+}
+.pref-toggle input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  padding: 0;
+}
