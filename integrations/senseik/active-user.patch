@@ -1,0 +1,27 @@
+--- a/src/Modules/Identity/Sense.Modules.Identity.Application/Auth/GetMe.cs
++++ b/src/Modules/Identity/Sense.Modules.Identity.Application/Auth/GetMe.cs
+@@ -1,5 +1,6 @@
+ using Sense.Modules.Identity.Application.Tenants;
+ using Sense.Modules.Identity.Domain;
++using Sense.Modules.Identity.Domain.Users;
+ using Sense.Shared.Contracts.Context;
+ using Sense.Shared.Contracts.Messaging;
+ using Sense.Shared.Contracts.Security;
+@@ -43,7 +44,7 @@
+             && await impersonationSessions.IsActiveAsync(cancellationToken).ConfigureAwait(false))
+         {
+             var platformUser = await users.GetByIdAcrossTenantsAsync(currentUser.UserId.Value, cancellationToken).ConfigureAwait(false);
+-            if (platformUser is null)
++            if (platformUser is null || platformUser.Status != UserStatus.Active)
+             {
+                 return Error.Unauthorized(Shared.Kernel.Results.ErrorCodes.Unauthenticated);
+             }
+@@ -61,7 +62,7 @@
+         }
+ 
+         var user = await users.GetByIdAsync(currentUser.UserId.Value, cancellationToken).ConfigureAwait(false);
+-        if (user is null)
++        if (user is null || user.Status != UserStatus.Active)
+         {
+             return Error.Unauthorized(Shared.Kernel.Results.ErrorCodes.Unauthenticated);
+         }

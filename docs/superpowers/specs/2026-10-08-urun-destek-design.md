@@ -1,6 +1,6 @@
 # SenseİK ürün destek portalı — tasarım ve kapsam
 
-Tarih: 8 Ekim 2026. Durum: Kullanıcı incelemesine hazır öneri; uygulama henüz yazılmadı.
+Tarih: 8 Ekim 2026. Durum: Kullanıcı onayıyla uygulandı. Çalıştırma ve doğrulama bilgileri kök README'de; SenseİK giriş köprüsünün son sözleşmesi `integrations/senseik/README.md` içindedir.
 
 ## Amaç
 
