@@ -4,6 +4,7 @@ COPY backend/requirements.txt /srv/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend /srv/backend
 COPY alembic.ini /srv/alembic.ini
+COPY docs/ai-bilgi-bankasi.md /srv/docs/ai-bilgi-bankasi.md
 ENV PYTHONPATH=/srv/backend PYTHONUNBUFFERED=1
 RUN useradd --uid 10001 --create-home support && mkdir -p /srv/data/uploads && chown -R support /srv/data
 USER support

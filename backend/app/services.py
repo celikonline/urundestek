@@ -7,6 +7,8 @@ from .models import Message, Notification, Reminder, Tenant, Ticket, TicketEvent
 from .repository import get_ticket, ticket_scope, ticket_view
 from .rich_text import clean_message
 from .attachments import store_files
+from .mailer import queue_email
+from .ai import queue_job
 
 STATUS_LABELS = {"open": "Açık", "in_progress": "İnceleniyor", "waiting_customer": "Yanıtınız bekleniyor", "resolved": "Çözüldü", "closed": "Kapalı"}
 
@@ -15,15 +17,22 @@ def event(db, ticket, user, label, internal=False):
     db.add(TicketEvent(tenant_id=ticket.tenant_id, ticket_id=ticket.id, actor_id=user.id, label=label, internal=internal))
 
 
-def notify(db, ticket, actor, text, kind="message"):
-    if actor.role in STAFF_ROLES:
-        recipient_ids = [ticket.created_by]
-        recipient_ids += list(db.scalars(select(User.id).where(User.tenant_id == ticket.tenant_id, User.role == "tenant_admin", User.active == True)))
-    else:
-        assignee = db.get(User, ticket.assigned_to) if ticket.assigned_to else None
-        recipient_ids = [assignee.id] if assignee and assignee.active and assignee.role in STAFF_ROLES else list(db.scalars(select(User.id).where(User.role.in_(STAFF_ROLES), User.active == True)))
-    for user_id in set(recipient_ids) - {actor.id, None}:
-        db.add(Notification(tenant_id=ticket.tenant_id, ticket_id=ticket.id, user_id=user_id, kind=kind, text=text[:500]))
+def notify(db, ticket, actor, text, kind="message", recipients=None):
+    """In-app notification plus a short e-mail for every recipient who opted in; the actor never notifies themself."""
+    if recipients is None:
+        if actor.role in STAFF_ROLES:
+            recipients = [db.get(User, ticket.created_by)]
+            recipients += list(db.scalars(select(User).where(User.tenant_id == ticket.tenant_id, User.role == "tenant_admin", User.active == True)))
+        else:
+            assignee = db.get(User, ticket.assigned_to) if ticket.assigned_to else None
+            recipients = [assignee] if assignee and assignee.active and assignee.role in STAFF_ROLES else list(db.scalars(select(User).where(User.role.in_(STAFF_ROLES), User.active == True)))
+    seen = set()
+    for person in recipients:
+        if not person or not person.active or person.id == actor.id or person.id in seen:
+            continue
+        seen.add(person.id)
+        db.add(Notification(tenant_id=ticket.tenant_id, ticket_id=ticket.id, user_id=person.id, kind=kind, text=text[:500]))
+        queue_email(db, ticket, person, text[:500], kind)
 
 
 def bump(db, ticket, expected, **values):
@@ -48,9 +57,12 @@ def create_ticket(db, user, data, key):
     db.add(ticket)
     try:
         db.flush()
-        db.add(Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=user.id, body=data.body, kind="customer"))
+        opening = Message(tenant_id=ticket.tenant_id, ticket_id=ticket.id, author_id=user.id, body=data.body, kind="customer")
+        db.add(opening)
+        db.flush()
         event(db, ticket, user, "Talep oluşturuldu")
         notify(db, ticket, user, f"Yeni talep: {ticket.subject}", "ticket")
+        queue_job(db, ticket, opening, "created")
         db.commit()
     except IntegrityError:
         db.rollback()
@@ -79,6 +91,8 @@ def add_message(db, user, ticket_id, data, internal=False, files=()):
             store_files(db, ticket, message, files, written)
         if not internal:
             notify(db, ticket, user, f"#{ticket.number} · {user.name} yeni bir yanıt yazdı.")
+            if user.role not in STAFF_ROLES:
+                queue_job(db, ticket, message, "reply")
         db.commit()
     except Exception:
         db.rollback()
@@ -136,6 +150,8 @@ def admin_update(db, user, ticket_id, data):
         notify(db, ticket, user, f"#{ticket.number} · Durum: {STATUS_LABELS[ticket.status]}", "status")
     if "assigned_to" in values:
         event(db, ticket, user, "Sorumlu değiştirildi", True)
+        if ticket.assigned_to and ticket.assigned_to != user.id:
+            notify(db, ticket, user, f"#{ticket.number} · {ticket.subject} talebi size atandı.", "assignment", [db.get(User, ticket.assigned_to)])
     if "priority" in values:
         event(db, ticket, user, "Öncelik değiştirildi")
     db.commit()
@@ -154,6 +170,7 @@ def dispatch_reminders(db):
             continue
         reminder.notified = True
         db.add(Notification(tenant_id=reminder.tenant_id, ticket_id=reminder.ticket_id, user_id=reminder.user_id, reminder_id=reminder.id, kind="reminder", text=f"#{ticket.number} · {reminder.note}"))
+        queue_email(db, ticket, owner, f"Hatırlatma: {reminder.note}", "reminder")
     try:
         db.commit()
     except IntegrityError:

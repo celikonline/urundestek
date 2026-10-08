@@ -59,7 +59,8 @@ class ExchangeInput(Input):
 
 
 class TenantInput(Input):
-    active: bool
+    active: bool | None = None
+    ai_mode: Literal["inherit", "off", "draft", "auto"] | None = None
 
 
 class StaffInput(Input):
@@ -72,3 +73,12 @@ class StaffInput(Input):
 class StaffUpdate(Input):
     active: bool | None = None
     role: Literal["support_agent", "platform_admin"] | None = None
+
+
+class PreferencesInput(Input):
+    email_notifications: bool
+
+
+class PasswordChangeInput(Input):
+    current_password: str = Field(min_length=1, max_length=200)
+    new_password: str = Field(min_length=1, max_length=200)

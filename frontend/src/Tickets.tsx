@@ -12,6 +12,8 @@ import {
   Clock3,
   LockKeyhole,
   ChevronDown,
+  Bot,
+  Sparkles,
 } from "lucide-react";
 import { api, post } from "./api";
 import { Empty, Loading, Status } from "./components";
@@ -479,7 +481,21 @@ function Thread({
 }) {
   const [internal, setInternal] = useState(false),
     [busy, setBusy] = useState(false),
-    [reminder, setReminder] = useState(false);
+    [reminder, setReminder] = useState(false),
+    [draft, setDraft] = useState<{ html: string; key: number } | null>(null);
+  const useDraft = (body: string, html: string | null) => {
+    const match = body.match(/Önerilen yanıt:\s*([\s\S]*)$/);
+    const text = match ? match[1].trim() : body;
+    const content =
+      html && match
+        ? text
+            .split(/\n{2,}/)
+            .map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`)
+            .join("")
+        : html || `<p>${text}</p>`;
+    setInternal(false);
+    setDraft({ html: content, key: Date.now() });
+  };
   const act = async (
     path: string,
     data: unknown,
@@ -547,6 +563,12 @@ function Thread({
             <Status value={ticket.status} />
           </div>
           <h2>{ticket.subject}</h2>
+          {ticket.status === "resolved" && !user.is_staff && (
+            <p className="resolved-hint">
+              Sorun devam ediyorsa yazmanız yeterli; talep yeniden açılır. Yanıt
+              gelmezse talep bir süre sonra otomatik kapanır.
+            </p>
+          )}
           <p>
             {CATEGORIES[ticket.category]}
             <span>·</span>
@@ -684,9 +706,40 @@ function Thread({
                     <LockKeyhole size={10} /> İç not
                   </span>
                 )}
+                {item.message.author_role === "assistant" && (
+                  <span className="support-label ai-label">
+                    <Bot size={10} />{" "}
+                    {item.message.kind === "internal"
+                      ? "Asistan taslağı"
+                      : "Yapay zekâ yanıtı"}
+                  </span>
+                )}
                 <time>{date(item.at)}</time>
               </div>
               <MessageContent message={item.message} />
+              {user.is_staff &&
+                item.message.author_role === "assistant" &&
+                item.message.kind === "internal" &&
+                ticket.status !== "closed" && (
+                  <button
+                    className="text-button use-draft"
+                    disabled={busy}
+                    onClick={() =>
+                      useDraft(item.message.body, item.message.body_html)
+                    }
+                  >
+                    <Sparkles size={14} />
+                    Taslağı yanıt olarak kullan
+                  </button>
+                )}
+              {!user.is_staff &&
+                item.message.author_role === "assistant" &&
+                item.message.kind === "support" && (
+                  <p className="ai-note">
+                    Bu yanıt SenseİK Asistan tarafından otomatik hazırlandı.
+                    Sorun devam ederse yazın; destek ekibimiz devralır.
+                  </p>
+                )}
             </article>
           ),
         )}
@@ -749,6 +802,7 @@ function Thread({
                 <MessageComposer
                   internal={isInternal}
                   busy={busy}
+                  draft={isInternal ? null : draft}
                   onSend={async (payload) => {
                     setBusy(true);
                     payload.set("version", String(ticket.version));
@@ -760,6 +814,7 @@ function Thread({
                         { method: "POST", body: payload },
                       );
                       onUpdate(updated);
+                      if (!isInternal) setDraft(null);
                       notify(
                         isInternal
                           ? "İç not kaydedildi."

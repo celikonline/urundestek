@@ -11,26 +11,46 @@ from fastapi.responses import JSONResponse
 from .config import settings
 from .db import SessionLocal
 from .routes import router
+from .ai import auto_close_resolved, process_ai_jobs
+from .mailer import send_pending
+from .retention import purge
 from .seed import bootstrap_admin, seed_demo
 from .services import dispatch_reminders
 from .upload_limits import UploadLimitMiddleware
 
 logger = logging.getLogger("support")
 attempts = defaultdict(deque)
+PURGE_INTERVAL = 3600
+last_purge = 0.0
 
 
 async def reminder_loop():
     while True:
         try:
-            await asyncio.to_thread(run_reminders)
+            await asyncio.to_thread(run_jobs)
         except Exception as exc:
-            logger.error("reminder_worker_failed error_type=%s", type(exc).__name__)
-        await asyncio.sleep(30)
+            logger.error("background_worker_failed error_type=%s", type(exc).__name__)
+        await asyncio.sleep(settings.worker_interval_seconds)
 
 
 def run_reminders():
     with SessionLocal() as db:
         dispatch_reminders(db)
+
+
+def run_jobs():
+    """Reminder dispatch and mail delivery every cycle; retention purge once an hour."""
+    global last_purge
+    run_reminders()
+    with SessionLocal() as db:
+        process_ai_jobs(db)
+    with SessionLocal() as db:
+        send_pending(db)
+    if time.monotonic() - last_purge >= PURGE_INTERVAL:
+        last_purge = time.monotonic()
+        with SessionLocal() as db:
+            auto_close_resolved(db)
+            purge(db)
 
 
 @asynccontextmanager
@@ -74,7 +94,10 @@ def create_app():
                 return JSONResponse({"detail": "Çok fazla deneme. Bir dakika sonra tekrar deneyin."}, 429, headers={"Retry-After": "60"})
             queue.append(current)
         response = await call_next(request)
-        response.headers.update({"X-Correlation-ID": correlation, "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Cache-Control": "no-store"})
+        response.headers.update({"X-Correlation-ID": correlation, "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Cache-Control": "no-store",
+                                 "X-Frame-Options": "DENY", "Permissions-Policy": "camera=(), microphone=(), geolocation=()"})
+        if not request.url.path.startswith("/api/docs"):
+            response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
         return response
 
     @app.exception_handler(RequestValidationError)

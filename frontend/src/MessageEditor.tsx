@@ -45,10 +45,12 @@ export function MessageComposer({
   internal,
   busy,
   onSend,
+  draft,
 }: {
   internal: boolean;
   busy: boolean;
   onSend: (payload: FormData) => Promise<boolean>;
+  draft?: { html: string; key: number } | null;
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const filesRef = useRef<File[]>([]);
@@ -153,6 +155,11 @@ export function MessageComposer({
     });
     editor.setEditable(!busy);
   }, [editor, internal, busy]);
+  useEffect(() => {
+    if (!editor || !draft) return;
+    editor.commands.setContent(DOMPurify.sanitize(draft.html));
+    editor.commands.focus("end");
+  }, [editor, draft]);
   if (!editor) return null;
   const toolbar = (
     label: string,
